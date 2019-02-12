@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+# https://tld-list.com/tlds-from-a-z
+
 use strict;
 use warnings;
 use Data::Dumper;

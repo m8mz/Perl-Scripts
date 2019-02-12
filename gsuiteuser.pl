@@ -23,12 +23,9 @@ my $db_user = "support";
 my $db_pass = "t1wamfn";
 my $db_host = "walsupporthub01";
 
-my $dbh_1;
-my $dbh_2;
-
 # initiate db connections
-$dbh_1 = DBI->connect("DBI:mysql:$db_billing:$db_host:$dbmain_port", $db_user, $db_pass, { RaiseError => 1 }) or die "Couldn't connect to $db_billing: " . DBI->errstr;
-$dbh_2 = DBI->connect("DBI:mysql:$db_mailsettings:$db_host:$dbmail_port", $db_user, $db_pass, { RaiseError => 1 }) or die "Couldn't connect to $db_mailsettings: " . DBI->errstr;
+my $dbh_1 = DBI->connect("DBI:mysql:$db_billing:$db_host:$dbmain_port", $db_user, $db_pass, { RaiseError => 1 }) or die "Couldn't connect to $db_billing: " . DBI->errstr;
+my $dbh_2 = DBI->connect("DBI:mysql:$db_mailsettings:$db_host:$dbmail_port", $db_user, $db_pass, { RaiseError => 1 }) or die "Couldn't connect to $db_mailsettings: " . DBI->errstr;
 
 if (@ARGV) {
 	my $account = shift;
@@ -55,7 +52,6 @@ if (@ARGV) {
 							}
 						}
 						$sth2->finish;
-						$dbh_2->disconnect;
 						last;
 					} elsif ( $count+1 == scalar @users ) { # check if this is the last iteration through the loop
 						print "The mailbox doesn't exist for Gsuite and there is no available ACLID credit that can be applied. Customer will need to purchase more licenses or swap that mailbox with an active Gsuite user.\n";
@@ -68,7 +64,6 @@ if (@ARGV) {
 					printf("%-10s %-20s %-30s %-15s\n", $data[0], $data[1], $data[2], $data[3]);
 				}
 				$sth1->finish;
-				$dbh_1->disconnect;
 			}
 		}
 	} else {
@@ -78,16 +73,14 @@ if (@ARGV) {
 		foreach my $user (@users) {
 			printf("%-10s %-20s %-30s %-15s\n", $user->[0], $user->[1], $user->[2], $user->[3]);
 		}
-		$dbh_1->disconnect;
-		$dbh_2->disconnect;
 	}
 } else {
 	print "No argument was provide. Please read below.\n";
 	print $help_message;
-	$dbh_1->disconnect;
-	$dbh_2->disconnect;
 }
 
+$dbh_1->disconnect;
+$dbh_2->disconnect;
 
 # sub-routines
 
