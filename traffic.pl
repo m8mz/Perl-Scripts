@@ -39,7 +39,7 @@ foreach my $dir_name (@logdir_list) {
 					push @{$hash{'typeofRequest'}}, $+{typeRequest};
 					push @{$hash{'content'}}, $+{content};
 					push @{$hash{'referrer'}}, $+{referrer};
-					push @{$hash{'userAgent'}}, $+{referrer};
+					push @{$hash{'userAgent'}}, $+{userAgent};
 				}
 			}
 			close $fh;
