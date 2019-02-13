@@ -39,7 +39,7 @@ print "Clearing Exim queue... this may take some time.\n";
 # get list of files/emails from input/msglog and push to global var @email_list
 grab_list($input_dir);
 grab_list($msglog_dir);
-# print Dumper \@email_list;
+
 # delete all files in the array
 my $unlinked = unlink @email_list;
 print "Deleted $unlinked file(s)\n";
