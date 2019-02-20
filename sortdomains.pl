@@ -5,6 +5,11 @@
 use strict;
 use warnings;
 use Data::Dumper;
+use WWW::Mechanize();
+
+my $mech = WWW::Mechanize->new();
+my $res = $mech->get("https://tld-list.com/tlds-from-a-z");
+print Dumper \$res;
 
 my @domains;
 my $file = "domains.txt";
@@ -39,4 +44,4 @@ my @sorted = sort {
   $a->{'subdomain'} cmp $b->{'subdomain'}
 } @ref;
 
-print Dumper \@sorted;
+# print Dumper \@sorted;
