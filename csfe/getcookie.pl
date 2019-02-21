@@ -12,7 +12,7 @@ my $url = "https://enduranceoss.com/cs/oss_login.html";
 my $res = $ua->post( $url, {
 	oss_redirect => 'https://admin.enduranceoss.com/cs/',
 	oss_user_name => 'mhancock-gaillard',
-	oss_password => 'Supermahg36!!',
+	oss_password => '##########',
 	oss_login => 'Login'
 } );
 
