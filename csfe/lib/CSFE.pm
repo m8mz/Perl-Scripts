@@ -13,12 +13,15 @@ our @EXPORT = qw(
 	check_config
 	set_config
 	get_all_config
+	check_cookie
 );
+
+my $home = $ENV{'HOME'};
 
 sub set_csfe_cookie {
 	my $username = shift or die "Missing username param for set_csfe_cookie in $0";
 	my $password = shift or die "Missing password param for set_csfe_cookie in $0";
-	my $cookie_file = $ENV{'HOME'} . "/temp/cookies/csfeperl";
+	my $cookie_file = $home . "/temp/cookies/csfeperl";
 	my $cookie_jar = HTTP::Cookies->new(
 		ignore_discard => 1,
 		autosave => 1,
@@ -88,6 +91,17 @@ sub set_csfe_cookie {
 	}
 
 }
-	
+
+sub check_cookie {
+	my $path = $home . "/temp/cookies/csfeperl";
+	my $limit = 28800; # 8 hours in second
+	my $mtime = (stat($path))[9];
+        my $time_since = time() - $mtime;
+	if ($time_since < $limit) {
+		return { 1 => "CSFE Cookie is valid." };
+	} else {
+		return { 0 => 'CSFE Cookie has expired' };
+	}
+}
 
 1;
