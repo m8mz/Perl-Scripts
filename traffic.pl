@@ -4,6 +4,9 @@
 use strict;
 use warnings;
 use Data::Dumper;
+use Getopt::Long qw(GetOptions);
+
+my $regex = qr{(?<IP>(\d{1,3}.){3}\d{1,3}).*"(?<typeRequest>GET|POST)\s(?<content>\S    *).*?"\s\d*\s(\d*|-)\s"(?<referrer>\S*)"\s"(?<userAgent>(.*\)|-))};
 
 my $log_dir = (-d "/etc/httpd/domlogs") ? '/etc/httpd/domlogs' : '/etc/apache2/logs/domlogs';
 
@@ -36,7 +39,7 @@ foreach my $dir_name (@logdir_list) {
                         open(my $fh, '<', $file) or die "Could not open file '$file': $!";
                         while (my $line = <$fh>) {
                                 chomp $line;
-                                if ($line =~ /(?<IP>(\d{1,3}.){3}\d{1,3}).*"(?<typeRequest>GET|POST)\s(?<content>\S*).*?"\s\d*\s(\d*|-)\s"(?<referrer>\S*)"\s"(?<userAgent>(.*\)|-))/) {
+                                if ($line =~ $regex) {
                                         push @{$hash{'IP'}}, $+{IP};
                                         push @{$hash{'typeofRequest'}}, $+{typeRequest};
                                         push @{$hash{'content'}}, $+{content};

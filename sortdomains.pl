@@ -5,11 +5,10 @@
 use strict;
 use warnings;
 use Data::Dumper;
-use WWW::Mechanize();
+use Net::DNS;
 
-my $mech = WWW::Mechanize->new();
-my $res = $mech->get("https://tld-list.com/tlds-from-a-z");
-print Dumper \$res;
+print Net::DNS->version, "\n";
+
 
 my @domains;
 my $file = "domains.txt";

@@ -19,7 +19,11 @@ sub set_csfe_cookie {
 	my $username = shift or die "Missing username param for set_csfe_cookie in $0";
 	my $password = shift or die "Missing password param for set_csfe_cookie in $0";
 	my $cookie_file = $ENV{'HOME'} . "/temp/cookies/csfeperl";
-	my $cookie_jar = HTTP::Cookies->new(ignore_discard => 1, autosave => 1, file => $cookie_file);
+	my $cookie_jar = HTTP::Cookies->new(
+		ignore_discard => 1,
+		autosave => 1,
+		file => $cookie_file
+	);
 	my $ua = LWP::UserAgent->new( cookie_jar => $cookie_jar );
 	$ua->agent('Mozilla/5.0');
 	my $url = "https://enduranceoss.com/cs/oss_login.html";
