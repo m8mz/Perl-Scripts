@@ -4,7 +4,6 @@ use warnings;
 
 use Getopt::Long qw(GetOptions);
 use URI::Escape qw(uri_unescape);
-use utf8;
 use Data::Dumper;
 use File::Basename qw(dirname);
 use Cwd qw(abs_path);
