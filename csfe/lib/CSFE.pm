@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use LWP::UserAgent;
-# use Data::Dumper;
+use Data::Dumper;
 use HTTP::Cookies;
 use Config::Simple;
 use Exporter qw(import);
@@ -17,11 +17,12 @@ our @EXPORT = qw(
 	csfe_check_cookie
         csfe_get_request
         csfe_post_request
+	csfe_check_all
 );
 
 my $home = $ENV{'HOME'};
-my $cookie_file = $home . "/temp/cookies/csfeperl";
-my $c = $home . "/temp/config/config.ini";
+my $cookie_file = $home . "/local/cookies/csfecookie";
+my $c = $home . "/local/config.ini";
 
 sub csfe_set_cookie {
 	my $username = shift or die "Missing username param for set_csfe_cookie in $0";
@@ -47,7 +48,7 @@ sub csfe_set_cookie {
 	} else {
 		return 0;
 	}
-}
+} # END
 
 {
 	# Config Sub-Routines
@@ -77,7 +78,7 @@ sub csfe_set_cookie {
 			$config{$k} = $set->{$k};
 		}
 		$cfg->set_block($block, \%config);
-		$cfg->save($c);
+		$cfg->save($c) or die $cfg->error();
 		my $temp = $cfg->get_block($block);
 		foreach my $k (keys %config) {
 			if (!defined $temp->{$k}) {
@@ -93,23 +94,24 @@ sub csfe_set_cookie {
 		return \%config;
 	}
 
-}
+} # END
 
 sub csfe_check_cookie {
         return 0 unless -f $cookie_file; # cookie file doesn't exist
 	my $limit = 28800; # 8 hours in second
 	my $mtime = (stat($cookie_file))[9];
         my $time_since = time() - $mtime;
-	if ($time_since < $limit) {
+	my $size = -s $cookie_file;
+	if ($time_since < $limit && $size > 1500) {
 		return 1;
 	} else {
 		return 0;
 	}
-}
+} # END
 
 sub csfe_get_request {
-        my $url = shift || "https://admin.enduranceoss.com/WidgetWrapper.cmp";
         my $o = shift or die "No params sent with GET request.";
+	my $url = shift // "https://admin.enduranceoss.com/WidgetWrapper.cmp";
 	my $cookie_jar = HTTP::Cookies->new(
 		file => $cookie_file
 	);
@@ -121,11 +123,11 @@ sub csfe_get_request {
 	} else {
 		return 0;
 	}
-}
+} # END
 
 sub csfe_post_request {
-        my $url = shift || "https://admin.enduranceoss.com/WidgetWrapper.cmp";
         my $o = shift or die "No params sent with POST request.";
+	my $url = shift // "https://admin.enduranceoss.com/WidgetWrapper.cmp";
 	my $cookie_jar = HTTP::Cookies->new(
 		file => $cookie_file
 	);
@@ -135,44 +137,53 @@ sub csfe_post_request {
         if ($res->code == 200 and $res->content) {
                 return $res->content;
         } else {
+		print Dumper $res;
                 return 0;
         }
-}
+} # END
+
+sub user_n_pass {
+	my $x = shift; # asks for Username if arg is true but if arg is false statement only asks for password
+	my $username;
+	if ($x) {
+		print "Username: ";
+		$username = <STDIN>;
+		chomp $username;
+	}
+	print "Password: ";
+	ReadMode('noecho');
+	my $password = ReadLine(0);
+	chomp $password;
+	ReadMode('normal');
+	print "\n";
+	return ($username) ? { username => $username, password => $password } : $password;
+} # END
 
 sub csfe_check_all {
-        my $username;
-        my $password;
-        sub user_n_pass {
-                my $x = shift || 1; # by default asks for Username but if passed 0 will skip
-                if ($x) {
-                        print "Username: ";
-                        $username = <STDIN>;
-                        chomp $username;
-                }
-                print "Password: ";
-                ReadMode('noecho');
-                $password = ReadLine(0);
-                chomp $password;
-                ReadMode('normal');
-        }
-
         if (csfe_check_cookie()) {
-
+		return 1;
         } else {
                 print "Cookie is either expired or does not exist!\n";
                 if (check_config()) {
                         my $c = get_all_config();
-                        user_n_pass(0);
+                        my $password = user_n_pass(0);
+			if (csfe_set_cookie($c->{'user.username'}, $password)) {
+				return 1;
+			} else {
+				print "Failed to login!\n";
+				return 0;
+			}
                 } else {
-                        user_n_pass();
-                        if (csfe_set_cookie($username, $password) {
-                                print "Successfully updated configuration and set CSFE cookie!\n" if set_config('user', $username);
+                        my $user_or_pass = user_n_pass(1);
+                        if (csfe_set_cookie($user_or_pass->{'username'}, $user_or_pass->{'password'})) {
+                                print "Successfully updated configuration and set CSFE cookie!\n" if set_config('user', { username => $user_or_pass->{'username'}});
                                 return 1;
                         } else {
-                                print "Failed to set cookie!\n";
+                                print "Failed to login!\n";
                                 return 0;
                         }
                 }
         }
+} # END
 
 1;
