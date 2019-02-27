@@ -6,7 +6,7 @@ use warnings;
 use Data::Dumper;
 use Getopt::Long qw(GetOptions);
 
-my $regex = qr{(?<IP>(\d{1,3}.){3}\d{1,3}).*"(?<typeRequest>GET|POST)\s(?<content>\S    *).*?"\s\d*\s(\d*|-)\s"(?<referrer>\S*)"\s"(?<userAgent>(.*\)|-))};
+my $regex = qr{(?<IP>(\d{1,3}.){3}\d{1,3}).*"(?<typeRequest>GET|POST)\s(?<content>\S*).*?"\s\d*\s(\d*|-)\s"(?<referrer>\S*)"\s"(?<userAgent>(.*\)|-))};
 
 my $log_dir = (-d "/etc/httpd/domlogs") ? '/etc/httpd/domlogs' : '/etc/apache2/logs/domlogs';
 
