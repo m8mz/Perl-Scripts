@@ -1,3 +1,4 @@
+# Author: Marcus Hancock-Gaillard
 package CSFE;
 use strict;
 use warnings;
@@ -10,14 +11,16 @@ use Exporter qw(import);
 use Term::ReadKey;
 
 our @EXPORT = qw(
-	csfe_set_cookie
-	check_config
-	set_config
-	get_all_config
-	csfe_check_cookie
         csfe_get_request
         csfe_post_request
 	csfe_check_all
+);
+our @EXPORT_OK = qw(
+        csfe_set_cookie
+        check_config
+        set_config
+        get_all_config
+        csfe_check_cookie
 );
 
 my $home = $ENV{'HOME'};
@@ -121,6 +124,7 @@ sub csfe_get_request {
 	if ($res->code == 200 and $res->content) {
 		return $res->content;
 	} else {
+                print Dumper $res;
 		return 0;
 	}
 } # END

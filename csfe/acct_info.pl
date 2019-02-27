@@ -1,9 +1,9 @@
 #!/usr/bin/env perl
+# Author: Marcus Hancock-Gaillard
 use strict;
 use warnings;
 
 use Getopt::Long qw(GetOptions);
-use URI::Escape qw(uri_unescape);
 use Data::Dumper;
 use File::Basename qw(dirname);
 use Cwd qw(abs_path);
@@ -68,14 +68,14 @@ if (csfe_check_all()) {
 					}
 				}
 					
-				print "$name ", utf8::decode(uri_unescape($value)), "\n";
+				print "$name ", $value, "\n";
 			} elsif ($line =~ m{title="(?<Email>.*@.*)"}) {
 				print "Email: $+{Email}\n";
 			}
 		}
 	} else {
-		print "failed\n";
+		die "Post request failed!\n";
 	}
 } else {
-	print "Something went wrong!\n";
+	die "Failed CSFE check_all().\n";
 }

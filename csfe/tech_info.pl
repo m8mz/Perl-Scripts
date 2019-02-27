@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# Author: Marcus Hancock-Gaillard
 use strict;
 use warnings;
 
@@ -43,8 +44,8 @@ if (csfe_check_all()) {
 			print "$m[0] $m[1]\n";
 		}
 	} else {
-		print "failed\n";
+		die "Post request failed!\n";
 	}
 } else {
-	print "Something went wrong.\n";
+	die "Failed CSFE check_all().\n";
 }
