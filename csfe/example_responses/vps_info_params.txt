@@ -1,0 +1,13 @@
+defaultTier: tierIII
+canExpand: 1
+canReload: 1
+cacheLevel: none
+OSSFlag: CSFE_BASIC
+widgetName: vps_info_new
+username: ipw.testmmstech
+subsystemID: 3000
+docPath: https://wiki.bizland.com/wiki/index.php/Widgets/vps_info_new
+title: VPS Info
+load_widget: 1
+__got_widget_js: 1
+

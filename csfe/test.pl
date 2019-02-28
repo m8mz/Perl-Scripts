@@ -1,7 +1,14 @@
-use Encode;
-use URI::Escape;
+use strict;
+use warnings;
+use Data::Dumper;
 
-my $in = "%C3%B3";
-my $text = Encode::decode('utf8', uri_unescape($in));
+my $string = '<td><nobr>Credit card</nobr></td>';
 
-print length($text);    # Should print 1
+while (1) {
+	if ($string =~ /<(\w+).*?>(.*)<\/\1>/) {
+		print $2, "\n";
+		$string = $2;
+	} else {
+		last;
+	}
+}

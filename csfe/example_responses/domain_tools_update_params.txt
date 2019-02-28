@@ -1,0 +1,113 @@
+UserName: ipg.testmhancockgaillard
+Domain: markanthony36.com
+NewOwner: 
+submitform: Save Changes
+CurrentMX: 40010
+newmx: new
+MX: 0
+domaintemplate: 2
+oldtype: 1
+Native: 1
+master: 
+domain_id: 26947758
+oldrecordtype_803939544: A
+oldrecordname_803939544: mx.markanthony36.com
+oldrecord_803939544: 66.96.147.100
+record_803939544: 66.96.147.100
+oldrecordtype_822356268: A
+oldrecordname_822356268: www.markanthony36.com
+oldrecord_822356268: 198.57.177.203
+record_822356268: 198.57.177.203
+oldrecordtype_803939547: A
+oldrecordname_803939547: imap.markanthony36.com
+oldrecord_803939547: 198.57.177.203
+record_803939547: 198.57.177.203
+oldrecordtype_803939546: A
+oldrecordname_803939546: pop.markanthony36.com
+oldrecord_803939546: 198.57.177.203
+record_803939546: 198.57.177.203
+oldrecordtype_803939548: A
+oldrecordname_803939548: smtp.markanthony36.com
+oldrecord_803939548: 198.57.177.203
+record_803939548: 198.57.177.203
+oldrecordtype_803939545: A
+oldrecordname_803939545: mx.markanthony36.com
+oldrecord_803939545: 198.57.177.203
+record_803939545: 198.57.177.203
+oldrecordtype_803939542: A
+oldrecordname_803939542: markanthony36.com
+oldrecord_803939542: 198.57.177.203
+record_803939542: 198.57.177.203
+oldrecordtype_803939550: A
+oldrecordname_803939550: webmail.markanthony36.com
+oldrecord_803939550: 66.96.147.100
+record_803939550: 66.96.147.100
+oldrecordtype_803939549: A
+oldrecordname_803939549: mail.markanthony36.com
+oldrecord_803939549: 66.96.147.100
+record_803939549: 66.96.147.100
+oldrecordtype_803939552: A
+oldrecordname_803939552: *.markanthony36.com
+oldrecord_803939552: 198.57.177.203
+record_803939552: 198.57.177.203
+oldrecordtype_803939551: A
+oldrecordname_803939551: email.markanthony36.com
+oldrecord_803939551: 198.57.177.203
+record_803939551: 198.57.177.203
+oldrecordtype_882380416: CNAME
+oldrecordname_882380416: dkim._domainkey.markanthony36.com
+oldrecord_882380416: cur.dkim.v.eigmail.net
+record_882380416: cur.dkim.v.eigmail.net
+oldrecordtype_803939553: MX
+oldrecordname_803939553: markanthony36.com
+oldrecord_803939553: mx.markanthony36.com
+record_803939553: mx.markanthony36.com
+oldprio_803939553: 30
+prio_803939553: 30
+oldrecordtype_803939554: MX
+oldrecordname_803939554: *.markanthony36.com
+oldrecord_803939554: mx.markanthony36.com
+record_803939554: mx.markanthony36.com
+oldprio_803939554: 30
+prio_803939554: 30
+oldrecordtype_803939540: NS
+oldrecordname_803939540: markanthony36.com
+oldrecord_803939540: ns1.ipage.com
+record_803939540: ns1.ipage.com
+oldrecordtype_803939541: NS
+oldrecordname_803939541: markanthony36.com
+oldrecord_803939541: ns2.ipage.com
+record_803939541: ns2.ipage.com
+oldrecordtype_803939539: SOA
+oldrecordname_803939539: markanthony36.com
+oldrecord_803939539: ns1.ipage.com. dnsadmin.ipage.com. 2016062775 10800 3600 604800 3600
+record_803939539: ns1.ipage.com. dnsadmin.ipage.com. 2016062775 10800 3600 604800 3600
+oldrecordtype_956996766: TXT
+oldrecordname_956996766: markanthony36.com
+oldrecord_956996766: test
+record_956996766: stuff
+oldrecordtype_803939555: TXT
+oldrecordname_803939555: markanthony36.com
+oldrecord_803939555: v=spf1 ip4:66.96.128.0/18 ?all
+record_803939555: v=spf1 ip4:66.96.128.0/18 ?all
+newtype: 
+newname: 
+newcontent: 
+newpriority: 
+notification: 1
+defaultTier: tierIII
+canExpand: 1
+canReload: 1
+cacheLevel: none
+tool: /csfe/tools/domainconsole.cmp
+widgetName: tech_tools_popup
+Domain: markanthony36.com
+username: ipg.testmhancockgaillard
+subsystemID: 1100
+PropertyID: 40
+docPath: https://wiki.bizland.com/wiki/index.php/Widgets/tech_tools_popup
+title: Tools
+load_widget: 1
+clear_widget_cache: 1
+__got_widget_js: 1
+

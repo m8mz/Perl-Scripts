@@ -1,0 +1,203 @@
+<div
+ id="vps_info_new" class="widget well fresh" >
+<h2>VPS Info<ul class="behaviors"><li><img src="/images/csfe/transpx.png" class="refresh icon2-refresh" title="Reload"/></li><li><img src="/images/csfe/transpx.png" class="expand icon2-expand" title="Expand"/></li><li><img src="/images/csfe/transpx.png" class="help icon2-help" title=""/></li></ul></h2>
+<div class="widget-content">
+<!-- admin01.int.bizland.net  -->
+	
+
+
+<script type="text/javascript">
+	
+	// get accounts drop down only for HAL users
+	var accounts_container =  document.getElementById('cpanel_users');
+	if( typeof(accounts_container) != 'undefined' && accounts_container != null ) {
+		getAccounts();
+	}
+
+	function resetRoot() {
+//		changeDiv( 'containerStatus','<img src="/images/indicator.gif">')
+
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=resetroot","containerStatus","2000",null,null);
+	}
+
+	function checkStatus() {
+//		changeDiv( 'containerStatus','<img src="/images/indicator.gif">')
+
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=check","containerStatus","2000",null,null);
+	}
+
+	function rebootContainer() {
+//		changeDiv( 'containerStatus','<img src="/images/indicator.gif">')
+
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=reboot","containerStatus","2000",null,null);
+	}
+
+	function startContainer() {
+//		changeDiv( 'containerStatus','<img src="/images/indicator.gif">')
+
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=start","containerStatus","2000",null,null);
+	}
+
+	function stopContainer() {
+//		changeDiv( 'containerStatus','<img src="/images/indicator.gif">')
+
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=stop","containerStatus","2000",null,null);
+	}
+
+	function inspectContainer() {
+//		changeDiv( 'containerStatus','<img src="/images/indicator.gif">')
+
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=inspect","containerDetails","2000",null,null);
+	}
+
+	function getAccounts(){
+		
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=get_accounts&method=get_accounts","cpanel_users","2000",add_list,null);
+	}
+
+	function add_list ( status, content, div ){
+		if(status =='finished') {
+			if( content ) {
+				var users = JSON.parse( content );
+				var user_list = document.createElement("SELECT");
+				user_list.setAttribute("id", "cpanel_user");
+				user_list.setAttribute("name", "cpanel_user");
+				div.innerHTML ='';
+				div.appendChild(user_list);
+				var login_button= document.createElement('input');
+				login_button.setAttribute('type','button');
+				login_button.setAttribute('id','login');
+				login_button.setAttribute('value','login');
+				login_button.addEventListener('click', loginUser);
+				div.appendChild(login_button);
+				for(var i=0; i<users.length; i++) {
+					var z = document.createElement("option");
+					z.setAttribute("value", users[i]);
+					var t = document.createTextNode(users[i]);
+					z.appendChild(t);
+					document.getElementById("cpanel_user").appendChild(z);
+				}
+
+			} else {
+				div.innerHTML = "No users";
+			}
+		} else {
+			div.innerHTML = content
+		}
+	}
+
+	function loginUser() {
+		if( document.getElementById("cpanel_user").value == '' ){
+			document.getElementById("containerStatus").innerHTML = "Select Cpanel Account";
+		} else {
+			new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=cpanel_login&method=get_login_url","containerStatus","2000",get_login_url,'&cpaneluser='+document.getElementById("cpanel_user").value);
+		}
+	}
+
+	function get_login_url(status, content, div ) {
+		if(status =='finished') {
+			if( content ) {
+				window.open( content, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes" );
+				div.innerHTML ='';
+			} else {
+				div.innerHTML = "Please try again later, Couldn't login.";
+			}
+		} else {
+			div.innerHTML = content
+		}
+	}
+
+	function whmLogin() {
+
+		new AsyncQueue("/csfe/widgets/vps_info_new.cmp","action=AsyncQueue&username=ipw.testmmstech&func=whm_login&method=get_whm_login","containerStatus","2000",get_login_url,null);
+	}
+
+</script>
+
+
+
+<table>
+<tr>
+	<td colspan="2" style="width: 350px;"><h4>Container Info</h4></td>
+	<td colspan="2"><h4>Container Limits</h4></td>
+</tr>
+<tr>
+	<td style="width: 180px;">
+		<strong>Host Node:</strong>
+	</td>
+	<td>
+		NA
+	</td>
+	<td><strong>Disk Space:</strong></td><td> 122880 MB</td>
+</tr>
+<tr>
+	<td><strong>Container ID:</strong></td><td>NA</td>
+	<td><strong>RAM:</strong></td><td> 8192 MB</td>
+</tr>
+<tr>
+	<td><strong>IPs:</strong></td><td><a href="https://192.163.208.126:2083" target="_blank">192.163.208.126</a></td>
+	<td><strong>Bandwidth:</strong></td><td> 0 MB</td>
+</tr>
+<tr>
+	<td><strong>Fulfillment Status:</strong></td><td>Active</td>
+	<td><strong>Plesk Domains:</strong></td><td> 1</td>
+</tr>
+<tr>
+	<td><strong>Date Created:</strong></td><td>2018-06-04</td>
+	<td><strong>Date Updated:</strong></td><td>2018-06-04</td>
+</tr>
+<tr>
+	<td><strong>Launch:</strong></td>
+	<td>
+		<a href="https://192.163.208.126:2083" target="_blank">cPanel</a>,
+		<a href="https://192.163.208.126:2087" target="_blank">WHM</a>,
+		<a href="https://192.163.208.126:2096" target="_blank">Webmail</a>
+	</td>
+</tr>
+<tr>    
+        <td><strong>WHM Login:</strong></td>
+        <td><input type="button" value="Login" onClick="javascript: whmLogin();"/></td>
+</tr> 
+<tr>
+	<td><strong>cPanel Login:</strong></td>
+	<td><div id="cpanel_users"></div></td>
+</tr>
+<tr>
+	<td><strong>Root Password:</strong></td>
+	<td colspan="3">
+		<input type="button" value="Regenerate" onClick="javascript: resetRoot();"/>
+	</td>
+</tr>
+<tr>
+	<td colspan="4"><br/>
+</tr>
+<tr>
+	<td><strong>Container Status:</strong></td>
+	<td>
+		<div id="containerStatus"></div>
+	</td>
+	<td>
+		<input type="button" id="checkStatus" onClick="javascript: checkStatus();" value="Check Status"/>
+		<br/>
+		<input type="button" id="startContainer" onClick="javascript: startContainer();" value="Start"/>
+		<input type="button" id="stopContainer" onClick="javascript: stopContainer();" value="Stop"/>
+	</td>
+	<td>
+		<input type="button" id="rebootContainer" onClick="javascript: rebootContainer();" value="Reboot"/>
+	</td>
+</tr>
+</table>
+
+<br/>
+
+<pre>
+<div id="containerDetails"></div>
+</pre>
+
+
+</div>
+</div>
+
+
+
+
