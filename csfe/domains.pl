@@ -17,10 +17,40 @@ if (csfe_check_all()) {
 		die "Usage: $0 [--username|-u] USER\n";
 	}
 	my $res = csfe_post_request({
-
+		defaultTier => 'tierIII',
+		canExpand => 1,
+		cacheTTL => '1 day',
+		canReload => 1,
+		startCollapsed => 1,
+		OSSFlag => 'CSFE_BASIC',
+		cacheLevel => 'perCustomer',
+		miniDoc => 'Displays the domains currently registered for this user, as well as tools to administer them.',
+		widgetName => 'user_domains',
+		height => 550,
+		username => $username,
+		subsystemID => 3000,
+		docPath => 'https =>//wiki.bizland.com/support/index.php/Category:Domains',
+		title => 'Domains',
+		load_widget => 1,
+		clear_widget_cache => 1,
+		__got_widget_js => 1,
 	});
 	if ($res) {
-		my @lines = split /\n/, $res;
+		my @list = split /<tr\s*\w+="\w+"\s*\w+=".*">/, $res;
+		shift @list; # remove the first entry since doesnt contain info
+		my @domains;
+		my @dates;
+		foreach my $section (@list) {
+			if ($section =~ /<a.*?>(?<Domain>[\d|\w]+\.\w+)<br\/>/) {
+				push @domains, $+{Domain};
+			}
+			if ($section =~ /<td\s+class="even"\s*>\n\s+(?<Date>.*)\n\s+<\/td>/) {
+				push @dates, $+{Date};
+			}
+		}
+		for (my $i = 0; $i < @domains; $i++) {
+			printf "Domain: %-25s Expires: %-10s\n", $domains[$i], $dates[$i];
+		}
 	} else {
 		die "Post request failed!\n";
 	}
