@@ -7,17 +7,15 @@ use warnings;
 my $config = 'wp-config.php';
 my $hashref;
 
-open(my $fh, '<', $config)
-	or die "Could not open file '$config': $!";
+open(my $fh, '<', $config) or die "Could not open file '$config': $!";
 
 while (my $line = <$fh>) {
 	chomp $line;
 	# (?<capture name>.*)
-	my @match = $line =~ /^define\(\s*['"](?<key>DB_[NUPH]\w+)['"],\s*['"](?<value>.*)['"]/;
-	# Group 1 grabs the key and group 2 has the value
-	foreach (@match) {
+	if ($line =~ /^define\(\s*['"](?<key>DB_[NUPH]\w+)['"],\s*['"](?<value>.*)['"]/) {
 		$hashref->{$+{"key"}} = $+{"value"};
 	}
+        last if keys %$hashref == 4;
 }
 # close opened file
 close $fh;
