@@ -40,7 +40,7 @@ if (csfe_check_all()) {
 			});
 		$res =~ s/\s{2,}/ /g;
 		$p->parse($res);
-		my @info;
+		my @info_arr;
 		foreach my $row (@array) {
 			if ($row =~ /\w+/) {
 				if ($row =~ /(Billing Information|Account Information|Caller ID|Edit)/) {
@@ -48,20 +48,29 @@ if (csfe_check_all()) {
 				}
 				$row =~ s/^\s+//;
 				$row =~ s/\s+$//;
-				push @info, $row;
+				push @info_arr, $row;
 			}
 		}
-		my $k = 0; #variable to check if 1st iteration
-		foreach my $item (@info) {
-			if ($k and $item =~ /:/) {
-				print "\n";
-			}
-			$k++;
-			print $item, " ";
-			if ($k == @info) {
-				print "\n";
+		my $temp = ''; # ref to hash key
+		my @temp_value; # will hold values
+		my %info;
+		foreach my $item (@info_arr) {
+			if ($item =~ /^(.*):/) {
+				$info{$1} = '';
+				if (@temp_value) {
+					my $value = join(' ', @temp_value);
+					$info{$temp} = $value;
+				}
+				@temp_value = ();
+				$temp = $1;
+			} else {
+				push @temp_value, $item;
+				if ($item eq $info_arr[-1]) {
+					$info{$temp} = $item;
+				}
 			}
 		}
+		print Dumper \%info;
 	} else {
 		die "Post request failed!\n";
 	}

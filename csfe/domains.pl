@@ -38,19 +38,21 @@ if (csfe_check_all()) {
 	if ($res) {
 		my @list = split /<tr\s*\w+="\w+"\s*\w+=".*">/, $res;
 		shift @list; # remove the first entry since doesnt contain info
-		my @domains;
+		my @domain_list;
 		my @dates;
+		my %domains;
 		foreach my $section (@list) {
 			if ($section =~ /<a.*?>(?<Domain>[\d|\w]+\.\w+)<br\/>/) {
-				push @domains, $+{Domain};
+				push @domain_list, $+{Domain};
 			}
 			if ($section =~ /<td\s+class="even"\s*>\n\s+(?<Date>.*)\n\s+<\/td>/) {
 				push @dates, $+{Date};
 			}
 		}
-		for (my $i = 0; $i < @domains; $i++) {
-			printf "Domain: %-25s Expires: %-10s\n", $domains[$i], $dates[$i];
+		for (my $i = 0; $i < @domain_list; $i++) {
+			$domains{$domain_list[$i]} = $dates[$i];
 		}
+		print Dumper \%domains;
 	} else {
 		die "Post request failed!\n";
 	}

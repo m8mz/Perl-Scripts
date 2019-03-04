@@ -35,6 +35,7 @@ if (csfe_check_all()) {
 		#my @lines = split /\n/, $res;
 		my @split = split /<tr class = "evenrowcolor">/, $res;
 		my @filtered;
+		my @trans;
 		foreach my $section (@split) {
 			my @info = $section =~ /(<td.*)/g;
 			push @filtered, \@info;
@@ -46,8 +47,9 @@ if (csfe_check_all()) {
 					$$row = $2;
 				}
 			}
-			printf "%-15s %-15s %-50s %-15s %-15s %-15s %-15s %-15s\n", (@$fil_section);
+			push @trans, $fil_section;
 		}
+		print Dumper \@trans;
 	} else {
 		die "Post request failed!\n";
 	}

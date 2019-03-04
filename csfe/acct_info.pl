@@ -38,10 +38,11 @@ if (csfe_check_all()) {
 	if ($res) {
 		my @lines = split /\n/, $res;
 		my @info = grep { $_ =~ /(<strong>|width="80%"><a href="\?search=|renew)/i; } @lines; # grabs the lines that have useful info
+		my %acct;
 		foreach my $line (@info) {
 			next if $line =~ /FaceBook|Twitter|Account Status|Account Type|Flip Date|telemarketing|Referral program|Tax Exemptions|Sales/;
 			$line =~ s/^\s+//g;
-			if ($line =~ m{<strong>(?<Name>.*)</strong>\s*(?<Value>.*)<?}) {
+			if ($line =~ m{<strong>(?<Name>.*)[:?]</strong>\s*(?<Value>.*)<?}) {
 				my $value = $+{"Value"};
 				my $name = $+{"Name"};
 				while ($name =~ m{<.*>(.*)<.*>}) {
@@ -67,12 +68,13 @@ if (csfe_check_all()) {
 						}
 					}
 				}
-					
-				print "$name ", $value, "\n";
+
+				$acct{$name} = $value;
 			} elsif ($line =~ m{title="(?<Email>.*@.*)"}) {
-				print "Email: $+{Email}\n";
+				$acct{"Email"} = $+{Email};
 			}
 		}
+		print Dumper \%acct;
 	} else {
 		die "Post request failed!\n";
 	}
