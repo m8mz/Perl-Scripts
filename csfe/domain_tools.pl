@@ -41,9 +41,6 @@ if (csfe_check_all()) {
 		map { $_ =~ s/^\s*//g; $_ =~ s/\s*$//g; } @m;
 		my @array = grep /<td colspan="2"><a|<td>\d+<\/td>/, @m;
 		print Dumper \@array;
-		#$line =~ s/^\s*(.*)\s*$/$1/;
-		#print Dumper \@m;
-		#print scalar @m;
 	} else {
 		die "Post request failed!\n";
 	}
