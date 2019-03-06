@@ -9,6 +9,7 @@ use HTTP::Cookies;
 use Config::Simple;
 use Exporter qw(import);
 use Term::ReadKey;
+use Carp;
 
 our @EXPORT = qw(
         csfe_get_request
@@ -28,8 +29,10 @@ my $cookie_file = $home . "/local/cookies/csfecookie";
 my $c = $home . "/local/config.ini";
 
 sub csfe_set_cookie {
-	my $username = shift or die "Missing username param for set_csfe_cookie in $0";
-	my $password = shift or die "Missing password param for set_csfe_cookie in $0";
+        # Get user/pass and set login URL. Created cookie and attached to useragent
+	my $username = shift or croak "Missing \$username param for set_csfe_cookie in $0";
+	my $password = shift or croak "Missing \$password param for set_csfe_cookie in $0";
+	my $url = "https://enduranceoss.com/cs/oss_login.html";
 	my $cookie_jar = HTTP::Cookies->new(
 		ignore_discard => 1,
 		autosave => 1,
@@ -37,8 +40,8 @@ sub csfe_set_cookie {
 	);
 	my $ua = LWP::UserAgent->new( cookie_jar => $cookie_jar );
 	$ua->agent('Mozilla/5.0');
-	my $url = "https://enduranceoss.com/cs/oss_login.html";
 	
+        # Send login request. 302 response code means successful
 	my $res = $ua->post( $url, {
 		oss_redirect => 'https://admin.enduranceoss.com/cs/',
 		oss_user_name => $username,
@@ -46,7 +49,7 @@ sub csfe_set_cookie {
 		oss_login => 'Login'
 	} );
 	
-	if ($res->code eq 302) { # returns 302 status when successful
+	if ($res->code eq 302) {
 		return 1;
 	} else {
 		return 0;
@@ -59,9 +62,10 @@ sub csfe_set_cookie {
 	$cfg->autosave(1);
 
 	sub check_config {
+                # check if config file exists > read the file and save values to hash > check if the username field exists
 		if (-f $c) {
-			$cfg->read($c) or die $cfg->error(); # read config file TODO: add error check for corrupt file
-			my %c = $cfg->vars(); # save current config values to hash
+			$cfg->read($c) or croak $cfg->error();
+			my %c = $cfg->vars();
 			if (!defined $c{"user.username"}) {
 				return 0;
 			} else {
@@ -73,15 +77,18 @@ sub csfe_set_cookie {
 	}
 
 	sub set_config {
-		my $block = shift or die "Missing block param for set_config in $0";
-		my $set = shift or die "Missing set hash param for set_config in $0";
+                # set block, receive hash ref (set), save current config > add new set to current config > set and save block
+		my $block = 'user';
+		my $set = shift or croak "Missing \\\%set param for set_config in $0";
 		my %config = $cfg->vars();
 		foreach my $k (keys %$set) { # Add new key, value pair(s) to current config
 			my $key = $block . '.' . $k;
 			$config{$k} = $set->{$k};
 		}
 		$cfg->set_block($block, \%config);
-		$cfg->save($c) or die $cfg->error();
+		$cfg->save($c) or croak $cfg->error();
+
+                # get config after update > check if updated correctly or return 0
 		my $temp = $cfg->get_block($block);
 		foreach my $k (keys %config) {
 			if (!defined $temp->{$k}) {
@@ -89,10 +96,13 @@ sub csfe_set_cookie {
 				last;
 			}
 		}
+
+
 		return 1;
 	}
 
 	sub get_all_config {
+                # return hash of config
 		my %config = $cfg->vars();
 		return \%config;
 	}
@@ -100,8 +110,9 @@ sub csfe_set_cookie {
 } # END
 
 sub csfe_check_cookie {
-        return 0 unless -f $cookie_file; # cookie file doesn't exist
-	my $limit = 28800; # 8 hours in second
+        # check if cookie file exists > get modification time of cookie file > check if modified under 8 hours and size is above 1500KB
+        return 0 unless -f $cookie_file; 
+	my $limit = 28800; # 8 hours in seconds
 	my $mtime = (stat($cookie_file))[9];
         my $time_since = time() - $mtime;
 	my $size = -s $cookie_file;
@@ -113,41 +124,48 @@ sub csfe_check_cookie {
 } # END
 
 sub csfe_get_request {
-        my $o = shift or die "No params sent with GET request.";
+        # get req params and get url or set default url > create cookie and save to useragent
+        my $o = shift or croak "No params sent with GET request";
 	my $url = shift // "https://admin.enduranceoss.com/WidgetWrapper.cmp";
 	my $cookie_jar = HTTP::Cookies->new(
 		file => $cookie_file
 	);
 	my $ua = LWP::UserAgent->new( cookie_jar => $cookie_jar );
 	$ua->agent('Mozilla/5.0');
+
+        # send GET request > if response code 200 and content exists then return content or return 0
 	my $res = $ua->get($url, $o);
 	if ($res->code == 200 and $res->content) {
 		return $res->content;
 	} else {
-                print Dumper $res;
+                carp Dumper($res);
 		return 0;
 	}
 } # END
 
 sub csfe_post_request {
-        my $o = shift or die "No params sent with POST request.";
+        # post req params and post url or set default url > create cookie and save to useragent
+        my $o = shift or croak "No params sent with POST request.";
 	my $url = shift // "https://admin.enduranceoss.com/WidgetWrapper.cmp";
 	my $cookie_jar = HTTP::Cookies->new(
 		file => $cookie_file
 	);
 	my $ua = LWP::UserAgent->new( cookie_jar => $cookie_jar );
 	$ua->agent('Mozilla/5.0');
+
+        # send POST request > if response code 200 and content exists then return content or return 0
         my $res = $ua->post($url, $o);
         if ($res->code == 200 and $res->content) {
                 return $res->content;
         } else {
-		print Dumper $res;
+		carp Dumper($res);
                 return 0;
         }
 } # END
 
 sub user_n_pass {
-	my $x = shift; # asks for Username if arg is true but if arg is false statement only asks for password
+        # return username and/or password
+	my $x = shift; # ask for Username if arg is true but if arg is false statement only asks for password
 	my $username;
 	if ($x) {
 		print "Username: ";
@@ -174,8 +192,7 @@ sub csfe_check_all {
 			if (csfe_set_cookie($c->{'user.username'}, $password)) {
 				return 1;
 			} else {
-				print "Failed to login!\n";
-				return 0;
+				croak "Failed to login!";
 			}
                 } else {
                         my $user_or_pass = user_n_pass(1);
@@ -183,8 +200,7 @@ sub csfe_check_all {
                                 print "Successfully updated configuration and set CSFE cookie!\n" if set_config('user', { username => $user_or_pass->{'username'}});
                                 return 1;
                         } else {
-                                print "Failed to login!\n";
-                                return 0;
+                                croak "Failed to login!";
                         }
                 }
         }
