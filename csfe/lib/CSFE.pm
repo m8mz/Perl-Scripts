@@ -27,7 +27,7 @@ our @EXPORT_OK = qw(
 my $home = $ENV{'HOME'};
 my $cookie_file = $home . "/local/cookies/csfecookie";
 my $c = $home . "/local/config.ini";
-my $LOCAL = 1;
+my $LOCAL = 0;
 
 sub csfe_set_cookie {
         # Get user/pass and set login URL. Created cookie and attached to useragent

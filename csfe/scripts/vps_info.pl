@@ -41,6 +41,9 @@ if (csfe_check_all()) {
 			$filtered[$i] =~ s/^\s*(.*)\s*$/$1/;
 		}
 		my %info = @filtered;
+		if (!$info{'IPs'}) {
+			die "No VPS info was found! (Possibly shared account)\n";
+		}
 		print Dumper \%info;
 	} else {
 		die "Post request failed!\n";

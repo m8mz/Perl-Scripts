@@ -1,0 +1,53 @@
+<div
+ id="account_information" class="widget well fresh" >
+<h2>Billing Information<ul class="behaviors"><li><img src="/images/csfe/transpx.png" class="refresh icon2-refresh" title="Reload"/></li><li><img src="/images/csfe/transpx.png" class="collapse icon2-collapse" title="Collapse"/></li><li><img src="/images/csfe/transpx.png" class="expand icon2-expand" title="Expand"/></li><li><img src="/images/csfe/transpx.png" class="help icon2-help" title=""/></li></ul></h2>
+<div class="widget-content">
+<!-- admin05.int.bizland.net  -->
+
+
+<div style="width:100%">
+	<div style="width:45%;float:left">
+        <h4><u>Billing Information</u></h4>
+		<p><strong>Card Holder Name:</strong> Marcus Hancock-Gaillard</p>
+		<dl>	
+			<dt>Billing Address:</dt>
+				<dd>10 Corporate Dr.</dd>
+				<dd>Burlington, MA 01803</dd>
+				<dd>USA</dd>
+			<dt>Card Number:</dt>
+				<dd>41XXXXXXXXXX1111</dd>
+		</dl>
+		<p><strong>Card Type:</strong> Visa</p>
+		<p><strong>Exp. Date:</strong> 01/23</p>
+		
+	</div>
+	<div style="width:54.9%;float:right">
+		<h4>Account Information <a href="/csfe/tools/EditUserInfo.cmp?username=ipw.testmmstech&agent=8967">(Edit)</a></h4>
+		<p><strong>First Name:</strong> Marcus</p>
+        <p><strong>Last Name:</strong> Hancock-Gaillard</p>
+        <p><strong>Business Name:</strong> </p>
+		<dl>
+			<dt>Company Address:</dt>
+				<dd>10 Corporate Dr.</dd>
+				<dd>Burlington, MA 
+                                        01803</dd>
+				<dd>USA</dd>
+		</dl>
+<br/><br/>
+
+
+		<p><strong>Phone:</strong> 1 602-503-0536<br/>
+
+		<p><strong>Caller ID:</strong> <br/>
+
+        </p>
+		
+	</div>
+</div>
+
+</div>
+</div>
+
+
+
+
