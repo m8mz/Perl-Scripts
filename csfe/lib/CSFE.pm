@@ -27,7 +27,7 @@ our @EXPORT_OK = qw(
 my $home = $ENV{'HOME'};
 my $cookie_file = $home . "/local/cookies/csfecookie";
 my $c = $home . "/local/config.ini";
-my $LOCAL = 0;
+my $LOCAL = 1;
 
 sub csfe_set_cookie {
         # Get user/pass and set login URL. Created cookie and attached to useragent
@@ -147,7 +147,7 @@ sub csfe_get_request {
 sub csfe_post_request {
         if ($LOCAL) { # LOCAL ENVIRONMENT
                 my $name = shift or croak "Provide a filename";
-                my $file = 'example_responses/' . $name . '.txt';
+                my $file = '../example_responses/' . $name . '.txt';
                 open(my $fh, '<', $file) or die "Err: Can't open '$file' $!";
                 my $res = do { local $/; <$fh> };
                 return $res;
