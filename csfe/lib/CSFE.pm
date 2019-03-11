@@ -27,7 +27,7 @@ our @EXPORT_OK = qw(
 my $home = $ENV{'HOME'};
 my $cookie_file = $home . "/local/cookies/csfecookie";
 my $c = $home . "/local/config.ini";
-my $LOCAL = 1;
+my $LOCAL = 0;
 
 sub csfe_set_cookie {
         # Get user/pass and set login URL. Created cookie and attached to useragent
@@ -145,7 +145,7 @@ sub csfe_get_request {
 } # END
 
 sub csfe_post_request {
-        if ($LOCAL) { # LOCAL ENVIRONMENT
+        if ($LOCAL) { # LOCAL ENVIRONMENT TODO: touch up the way this works
                 my $name = shift or croak "Provide a filename";
                 my $file = '../example_responses/' . $name . '.txt';
                 open(my $fh, '<', $file) or die "Err: Can't open '$file' $!";
@@ -163,6 +163,12 @@ sub csfe_post_request {
 
         # send POST request > if response code 200 and content exists then return content or return 0
         my $res = $ua->post($url, $o);
+
+	# check if response has redirect to login meaning a bad password when user inputed password for cookie
+	if ($res->header('x-redirect')) {
+		croak "Err: Would suggest that the cookie file is bad/corrupt. Remove '$cookie_file'.\n";
+	}
+
         if ($res->code == 200 and $res->content) {
                 return $res->content;
         } else {
@@ -214,5 +220,9 @@ sub csfe_check_all {
                 }
         }
 } # END
+
+
+# Information Gathering
+
 
 1;
