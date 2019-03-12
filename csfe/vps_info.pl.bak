@@ -33,12 +33,6 @@ my $res = csfe_post_request({
 	__got_widget_js => 1,
 }) or die "Err: Issue with response!";
 
-my %info;
-while ($res =~ m`
-<td.*>\n?\s*<strong>(?<Key>.*):</strong>\n?\s*</td>\n?\s*<td>\n?\s*(<a.*>(?<Value>.*)</a>|(?<Value>.*))\n?\s*</td>
-`gix) {
-	next if $+{Key} =~ /Container Status|\w+ Login/;
-	$info{"$+{Key}"} = $+{Value};
-}
-
+my @filtered = $res =~ m`<td[ a-z0-9:=";]*>\n?\s*<strong>([ a-z0-9]+):</strong>\n?\s*</td>\n?\s*<td>\n?\s*([ a-z0-9-]+)\n?\s*</td>`gis;
+my %info = @filtered;
 print Dumper \%info;

@@ -51,7 +51,6 @@ my $res = csfe_post_request({
 	load_widget => 1,
 	__got_widget_js => 1
 }) or die "Err: Issue with response!";
-print "here\n";
 
 my %obj = (
 	id => '',
@@ -97,8 +96,7 @@ while ($res =~ m`
 	}
 
 }
-print "here\n";
-#print Dumper \%obj;
+print Dumper \%obj;
 
 
 # ==== Sub Routines ====
@@ -159,6 +157,8 @@ sub add_record {
 
 	#print Dumper \%params;
 	my $res = csfe_post_request(\%params);
+	print $res;
+	print "\n";
 	if ($res) {
 		print "Added record.\n";
 	}

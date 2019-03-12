@@ -41,8 +41,8 @@ while ($res =~ m`
 \s*<td>(?<BillDate>.*)</td>
 \s*<td>(?<Product>.*)</td>
 \s*<td>(?<Amount>.*)</td>
-\s*<td>(?<SalesAmount>.*)</td>
-\s*<td>(?<TotalAmount>.*)</td>
+(\s*<td>(?<SalesAmount>.*)</td>
+\s*<td>(?<TotalAmount>.*)</td>)?
 \s*<td><nobr>(?<PaymentMethod>.*)</nobr></td>
 \s*<td>(?<Status>.*)</td>
 `gix) {
