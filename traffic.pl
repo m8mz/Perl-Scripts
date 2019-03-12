@@ -36,6 +36,7 @@ foreach my $dir_name (@logdir_list) {
                         userAgent => [],
                 );
                 foreach my $file (@logs) {
+			next unless -f $ssllog;
                         open(my $fh, '<', $file) or die "Could not open file '$file': $!";
                         while (my $line = <$fh>) {
                                 chomp $line;
