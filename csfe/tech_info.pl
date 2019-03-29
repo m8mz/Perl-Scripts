@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# Author: Marcus Hancock-Gaillard
 use strict;
 use warnings;
 
@@ -11,43 +10,31 @@ use lib dirname( abs_path $0 ) . '/lib';
 
 use CSFE;
 
-if (csfe_check_all()) {
-	my $username;
-	GetOptions('username|u=s' => \$username) or die "Usage: $0 [--username|-u] USER\n";
-	if (!$username) {
-		die "Usage: $0 [--username|-u] USER\n";
-	}
-	my $res = csfe_post_request({
-		canExpand => 1,
-		defaultTier => 'tierIII',
-		canReload => 1,
-		startCollapsed => 1,
-		cacheLevel => 'none',
-		widgetName => 'Technical',
-		username => $username,
-		subsystemID => 3000,
-		docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/Technical',
-		title => 'Technical Information',
-		load_widget => 1,
-		__got_widget_js => 1
-	});
-	if ($res) {
-		my @lines = split /\n/, $res;
-		my @info_list = grep { $_ =~ m{<p>.*} } @lines;
-		my %info;
-		foreach my $line (@info_list) {
-			my @m = $line =~ m{<p><strong>(.*):</strong>\s*(.*)<?};
-			next if $m[0] =~ /FTP|Server|Container/;
-			$m[1] =~ s/<\/p>//;
-			if ($m[0] =~ /Platform/) {
-				$m[1] =~ s/<.*>\s*//;
-			}
-			$info{$m[0]} = $m[1];
-		}
-		print Dumper \%info;
-	} else {
-		die "Post request failed!\n";
-	}
-} else {
-	die "Failed CSFE check_all().\n";
+die "Failed CSFE check_all()" unless csfe_check_all();
+
+my $username;
+GetOptions('username|u=s' => \$username) or die "Usage: $0 [--username|-u] USER\n";
+if (!$username) {
+        die "Usage: $0 [--username|-u] USER\n";
 }
+my $res = csfe_post_request({
+	defaultTier => 'tierIII',
+	canExpand => 1,
+	canReload => 1,
+	cacheLevel => 'none',
+	OSSFlag => 'CSFE_BASIC',
+	widgetName => 'vps_info_new',
+	username => $username,
+	subsystemID => 3000,
+	docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/vps_info_new',
+	title => 'VPS Info',
+	load_widget => 1,
+	__got_widget_js => 1,
+}) or die "Err: Issue with response!";
+
+my %info;
+while ( $res =~ m`<strong>(?<Key>.*):</strong>\n?\s*</td>\n?\s*<td>\s*(<a\s*href=".*"\s*target="_blank">(?<Value>.*)</a>|(?<Value>[a-zA-Z0-9 -]+))\n?\s*</td>`gix ) {
+	$info{"$+{Key}"} = $+{Value};
+}
+
+print Dumper \%info;
