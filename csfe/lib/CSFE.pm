@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use LWP::UserAgent;
-use Data::Dumper;
 use HTTP::Cookies;
 use Config::Simple;
 use Exporter qw(import);
@@ -27,7 +26,6 @@ our @EXPORT_OK = qw(
 my $home = $ENV{'HOME'};
 my $cookie_file = $home . "/local/cookies/csfecookie";
 my $c = $home . "/local/config.ini";
-my $LOCAL = 0;
 
 sub csfe_set_cookie {
         # Get user/pass and set login URL. Created cookie and attached to useragent
@@ -117,7 +115,7 @@ sub csfe_check_cookie {
 	my $mtime = (stat($cookie_file))[9];
         my $time_since = time() - $mtime;
 	my $size = -s $cookie_file;
-	if ($time_since < $limit && $size > 1500) {
+	if ($time_since < $limit && $size == 215) {
 		return 1;
 	} else {
 		return 0;
@@ -145,13 +143,6 @@ sub csfe_get_request {
 } # END
 
 sub csfe_post_request {
-        if ($LOCAL) { # LOCAL ENVIRONMENT TODO: touch up the way this works
-                my $name = shift or croak "Provide a filename";
-                my $file = '../example_responses/' . $name . '.txt';
-                open(my $fh, '<', $file) or die "Err: Can't open '$file' $!";
-                my $res = do { local $/; <$fh> };
-                return $res;
-        }
         # post req params and post url or set default url > create cookie and save to useragent
         my $o = shift or croak "No params sent with POST request.";
 	my $url = shift // "https://admin.enduranceoss.com/WidgetWrapper.cmp";
@@ -220,9 +211,6 @@ sub csfe_check_all {
                 }
         }
 } # END
-
-
-# Information Gathering
 
 
 1;

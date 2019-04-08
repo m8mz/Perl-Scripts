@@ -1,42 +1,28 @@
-# One off situation needed to search through mailbox to get the subject line of each email
-
 use strict;
 use warnings;
 
-my $dir = "cur";
+my $dir = "/home/indianv5/mail/new";
 
 opendir my $d, $dir or die "Err: $!";
 my @files = readdir $d;
 closedir $d;
 
-my %hash;
-my @array;
+my @emails;
+my $count = 0;
 
-foreach my $file (@files) {
-	$file = $dir . "/" . $file;
+FILE: foreach my $file (@files) {
 	open my $fh, $file or die "Err: $!";
-	my $subject;
 	while (my $line = <$fh>) {
-		if ($line =~ /Subject:\s+(.*)/) {
-			$subject = $1;
-			if ($subject =~ /Warning: message .* delayed/) {
-				push @array, $subject;
-			}
+		if ($line =~ /Subject:\s+Cron <indianv5\@server>/) {
+			$count++;
+			print $count, "\n";
+			push @emails, $file;
+			next FILE;
 		}
-		last if defined $subject;
 	}
 	close $fh;
 }
 
-print scalar @array, "\n";
+unlink @emails;
 
-#foreach my $k (sort { $hash{$a} <=> $hash{$b} } keys %hash) {
-#	my $count = 0;
-#	if ($count < 10) {
-#		print $hash{$k}, " - ", $k, "\n";
-#		$count++;
-#	} else {
-#		last;
-#	}
-#}
-
+print "Emails are gone!\n";
