@@ -18,10 +18,6 @@ our @EXPORT = qw(Billing_Snapshot);
 
 This module will return a snapshot of the billing transaction for a vDeck username, domain, or email address.
 
-=back
-
-=over 4
-
 =item # Usage/Examples
 
 Requires a username, domain, or email address to run the script.
@@ -34,13 +30,9 @@ Requires a username, domain, or email address to run the script.
 
 =end text
 
-=back
-
-=over 4
-
 =item # Response
 
-Will respond with an array of transactions like the example below.
+Will respond with an array of transactions like the example below:
 
 =begin text
 
@@ -129,10 +121,6 @@ $VAR1 = [
 
 =end text
 
-=back
-
-=over 4
-
 =item # Author
 
 Author: Marcus Hancock-Gaillard (marcus.hancock-gaillard@endurance.com) - 04/2019
@@ -144,7 +132,7 @@ Author: Marcus Hancock-Gaillard (marcus.hancock-gaillard@endurance.com) - 04/201
 sub Billing_Snapshot {
 	die "Failed CSFE check_all()" unless csfe_check_all();
 
-	my $arg = shift || die "Pass an argument to Billing_Snapshot!\n";
+	my $arg = shift // die "Pass an argument to Billing_Snapshot!\n";
 
 	my $res = csfe_post_request({
 		defaultTier => 'tierIII',

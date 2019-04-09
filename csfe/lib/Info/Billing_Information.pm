@@ -13,32 +13,23 @@ our @EXPORT = qw(Billing_Information);
 
 =over 4
 
-=item #Description
+=item # Description
 
 This module will return the billing information for a vDeck username, domain, or email address.
 
-=back
-
-=over 4
-
-=item #Usage/Examples
+=item # Usage/Examples
 
 Requires a username, domain, or email address to run the script.
 
 =begin text
 
-	my %info = Billing_Information("ipw.testmmstech");
-	my %info = Billing_Information("munix.tech");
-	my %info = Billing_Information("marcus.hancock-gaillard@endurance.com");
+		my %info = Billing_Information("ipw.testmmstech");
+		my %info = Billing_Information("munix.tech");
+		my %info = Billing_Information("marcus.hancock-gaillard@endurance.com");
 
 =end text
 
-
-=back
-
-=over 4
-
-=item #Response
+=item # Response
 
 Will respond with a hash like the following example:
 
@@ -60,11 +51,7 @@ Will respond with a hash like the following example:
 
 =end text
 
-=back
-
-=over 4
-
-=item #Author
+=item # Author
 
 Author: Marcus Hancock-Gaillard (marcus.hancock-gaillard@endurance.com) - 04/2019
 
@@ -75,7 +62,7 @@ Author: Marcus Hancock-Gaillard (marcus.hancock-gaillard@endurance.com) - 04/201
 sub Billing_Information {
 
 	die "Failed CSFE check_all()" unless csfe_check_all();
-	my $arg = shift || die "Need to pass an argument to Billing_Information!\n";
+	my $arg = shift // die "Need to pass an argument to Billing_Information!\n";
 
 	my $res = csfe_post_request({
 		defaultTier => 'tierIII',

@@ -8,6 +8,7 @@ use HTTP::Cookies;
 use Config::Simple;
 use Exporter qw(import);
 use Term::ReadKey;
+use Data::Dumper;
 use Carp;
 
 our @EXPORT = qw(
@@ -187,7 +188,6 @@ sub user_n_pass {
 } # END
 
 sub csfe_check_all {
-        return 1 if $LOCAL;
         if (csfe_check_cookie()) {
 		return 1;
         } else {

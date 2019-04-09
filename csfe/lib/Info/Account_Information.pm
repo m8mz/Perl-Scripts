@@ -15,10 +15,6 @@ our @EXPORT = qw(Account_Information);
 
 This module will return the account information for a username, domain, or email address.
 
-=back
-
-=over 4
-
 =item Usage/Examples
 
 Requires a username, domain, or email address to run the script.
@@ -28,10 +24,6 @@ my %info = Account_Information("ipw.testmmstech");
 my %info = Account_Information("munix.tech");
 
 my %info = Account_Information("marcus.hancock-gaillard@endurance.com");
-
-=back
-
-=over 4
 
 =item Response
 
@@ -59,10 +51,6 @@ Will respond with a hash like the following example information:
 
 =end text
 
-=back
-
-=over 4
-
 =item Author
 
 Author: Marcus Hancock-Gaillard - 4/2019
@@ -75,7 +63,7 @@ sub Account_Information {
 
 	die "Failed CSFE check_all()" unless csfe_check_all();
 
-	my $arg = shift || die "Need to pass an argument to Account_Information!\n";
+	my $arg = shift // die "Need to pass an argument to Account_Information!\n";
 
 	my $res = csfe_post_request({
 		canExpand => 1,
