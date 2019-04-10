@@ -1,5 +1,4 @@
-#!/usr/bin/env perl
-package Info::Billing_Snapshot;
+package Info::Billing_Snap;
 use strict;
 use warnings;
 

@@ -1,4 +1,4 @@
-package Info::Tech_Information;
+package Info::Tech_Info;
 use strict;
 use warnings;
 

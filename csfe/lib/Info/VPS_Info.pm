@@ -1,4 +1,4 @@
-package Info::VPS_Information;
+package Info::VPS_Info;
 use strict;
 use warnings;
 

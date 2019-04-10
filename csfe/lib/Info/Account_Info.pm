@@ -1,4 +1,4 @@
-package Info::Account_Information;
+package Info::Account_Info;
 
 use CSFE;
 use Exporter qw(import);

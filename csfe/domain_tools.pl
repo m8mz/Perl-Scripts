@@ -1,107 +1,93 @@
-#!/usr/bin/env perl
+package Info::Domain_Tools;
 use strict;
 use warnings;
 
-use Getopt::Long qw(GetOptions);
-use Data::Dumper;
-use File::Basename qw(dirname);
-use Cwd qw(abs_path);
-use lib dirname( abs_path $0 ) . '/lib';
-
 use CSFE;
+use Exporter qw(import);
 
-die "Failed CSFE check_all()" unless csfe_check_all();
+our @EXPORT_OK = qw(Domain_Info Add_Record);
 
-# Required Variables
-my $username;
-my $domain;
+sub Domain_Info {
 
-# Add DNS Record
-my $type;
-my $name;
-my $record;
-my $priority = '';
+	die "Failed CSFE check_all()" unless csfe_check_all();
+	my ($arg, $domain) = @_;
 
-
-GetOptions(
-	'username|u=s' => \$username,
-	'domain|d=s' => \$domain,
-	'type|t=s' => \$type,
-	'name|n=s' => \$name,
-	'record|r=s' => \$record,
-	'priority|p=s' => \$priority,
-) or die "Usage: $0 [--username|-u] USER\n"; # TODO: add help message
-if (!$username or !$domain) {
-	die "Usage: $0 [--username|-u] USER [--domain|-d] DOMAIN\n";
-}
-
-my $res = csfe_post_request({
-	canExpand => 1,
-	defaultTier => 'tierIII',
-	canReload => 1,
-	cacheLevel => 'none',
-	tool => '/csfe/tools/domainconsole.cmp',
-	widgetName => 'tech_tools_popup',
-	Domain => $domain,
-	username => $username,
-	subsystemID => 1100,
-	PropertyID => 33,
-	docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/tech_tools_popup',
-	title => 'Tools',
-	load_widget => 1,
-	__got_widget_js => 1
-}) or die "Err: Issue with response!";
-
-my %obj = (
-	id => '',
-	mx => '',
-	dns => [],
-	history => []
-);
-while ($res =~ m`
-.*name="CurrentMX"\s+value="(?<Mx_ID>\d+)"> |
-.*name="domain_id"\s+value="(?<Domain_ID>\d+)" |
-<td\s+colspan="2"><a\shref="/csfe/general\.html\?username=(?<Username>.*)">.*\n\s*<td>(?<Date>.*)</td> |
-<tr>\n
-\s*<td>(?<ID>\d+)</td>\n
-.*\n
-\s*<input.*value="(?<Type>.*)".*\n
-.*\n
-\s*<input.*value="(?<Name>.*)".*\n
-\s*<td><input.*value="(?<Record>.*)".*\n
-(.*name="oldprio.*value="(?<Priority>\d+)")?
-`gix) {
-	if (exists $+{Mx_ID}) {
-		$obj{'mx'} = $+{Mx_ID};
-	} elsif (exists $+{Domain_ID}) {
-		$obj{'id'} = $+{Domain_ID};
+	if (@_ >= 3) {
+		print "here\n";
+		my ($type, $name, $record, $priority) = @_;
 	}
-
-	if (exists $+{Username} and exists $+{Date}) {
-		push @{$obj{'history'}}, { user => $+{Username}, date => $+{Date} };
+	if (!$arg || !$domain) {
+		die "Must at least pass the required arguments to Domain_Info!\n";
 	}
+	
+	my $res = csfe_post_request({
+		canExpand => 1,
+		defaultTier => 'tierIII',
+		canReload => 1,
+		cacheLevel => 'none',
+		tool => '/csfe/tools/domainconsole.cmp',
+		widgetName => 'tech_tools_popup',
+		Domain => $domain,
+		username => $arg,
+		subsystemID => 1100,
+		PropertyID => 33,
+		docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/tech_tools_popup',
+		title => 'Tools',
+		load_widget => 1,
+		__got_widget_js => 1
+	}) or die "Err: Issue with response!";
 
-	if (exists $+{ID} and exists $+{Type} and exists $+{Name} and exists $+{Record}) {
-		my $o = {
-			id => $+{ID},
-			type => $+{Type},
-			name => $+{Name},
-			record => $+{Record}
-		};
-		if (exists $+{Priority}) {
-			$o->{'priority'} = $+{Priority};
+	my %obj = (
+		id => '',
+		mx => '',
+		dns => [],
+		history => []
+	);
+	while ($res =~ m`
+	.*name="CurrentMX"\s+value="(?<Mx_ID>\d+)"> |
+	.*name="domain_id"\s+value="(?<Domain_ID>\d+)" |
+	<td\s+colspan="2"><a\shref="/csfe/general\.html\?username=(?<Username>.*)">.*\n\s*<td>(?<Date>.*)</td> |
+	<tr>\n
+	\s*<td>(?<ID>\d+)</td>\n
+	.*\n
+	\s*<input.*value="(?<Type>.*)".*\n
+	.*\n
+	\s*<input.*value="(?<Name>.*)".*\n
+	\s*<td><input.*value="(?<Record>.*)".*\n
+	(.*name="oldprio.*value="(?<Priority>\d+)")?
+	`gix) {
+		if (exists $+{Mx_ID}) {
+			$obj{'mx'} = $+{Mx_ID};
+		} elsif (exists $+{Domain_ID}) {
+			$obj{'id'} = $+{Domain_ID};
 		}
 
-		push @{$obj{'dns'}}, $o;
+		if (exists $+{Username} and exists $+{Date}) {
+			push @{$obj{'history'}}, { user => $+{Username}, date => $+{Date} };
+		}
+
+		if (exists $+{ID} and exists $+{Type} and exists $+{Name} and exists $+{Record}) {
+			my $o = {
+				id => $+{ID},
+				type => $+{Type},
+				name => $+{Name},
+				record => $+{Record}
+			};
+			if (exists $+{Priority}) {
+				$o->{'priority'} = $+{Priority};
+			}
+
+			push @{$obj{'dns'}}, $o;
+		}
+
 	}
 
+	return %obj;
+
 }
-print Dumper \%obj;
 
 
-# ==== Sub Routines ====
-
-sub add_record {
+sub Add_Record {
 	my $property_id = substr $obj{'mx'}, 0, 2;
 	my %params = (
 		UserName => $username,

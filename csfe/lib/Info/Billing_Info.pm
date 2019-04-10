@@ -1,4 +1,4 @@
-package Info::Billing_Information;
+package Info::Billing_Info;
 use strict;
 use warnings;
 
