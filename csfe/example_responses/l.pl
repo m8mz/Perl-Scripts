@@ -11,5 +11,5 @@ my $line = <$fh>;
 chomp $line;
 
 while ($line =~ /(\w+)=([A-Za-z0-9\.:\/_ ]*)/g) {
-	print $1, " = ", $2, "\n";
+	print $1, " => ", $2, ",\n";
 }

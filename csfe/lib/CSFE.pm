@@ -8,13 +8,13 @@ use HTTP::Cookies;
 use Config::Simple;
 use Exporter qw(import);
 use Term::ReadKey;
-use Data::Dumper;
 use Carp;
 
 our @EXPORT = qw(
         csfe_get_request
         csfe_post_request
 	csfe_check_all
+	csfe_search
 );
 our @EXPORT_OK = qw(
         csfe_set_cookie
@@ -212,5 +212,24 @@ sub csfe_check_all {
         }
 } # END
 
+sub csfe_search {
+	# search for vDeck username from IP address, domain, or email address
+	my $arg = shift // die "Need an argument to search for a vDeck username!\n";
+	my $link = 'https://admin.enduranceoss.com/csfe/search.html';
+	my %o = (
+		advanced_search => $arg
+	);
+	if ($arg =~ /(\d{1,3}\.){3}\d{1,3}/) {
+		$o{"search_type"} = "VPSIP";
+	} else {
+		$o{"search_type"} = "domain";
+	}
+	my $res = csfe_post_request(\%o, $link);
+	if ($res =~ m`<a\s+href="/csfe/general\.html\?username=([\w\.0-9]+)"`gix) {
+		return $1;
+	} else {
+		return 0;
+	}
+}
 
 1;

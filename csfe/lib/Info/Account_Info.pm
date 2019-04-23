@@ -11,11 +11,11 @@ our @EXPORT = qw(Account_Information);
 
 =over 4
 
-=item Description
+=item # Description
 
 This module will return the account information for a username, domain, or email address.
 
-=item Usage/Examples
+=item # Usage/Examples
 
 Requires a username, domain, or email address to run the script.
 
@@ -25,7 +25,7 @@ my %info = Account_Information("munix.tech");
 
 my %info = Account_Information("marcus.hancock-gaillard@endurance.com");
 
-=item Response
+=item # Response
 
 Will respond with a hash like the following example information:
 
@@ -51,7 +51,7 @@ Will respond with a hash like the following example information:
 
 =end text
 
-=item Author
+=item # Author
 
 Author: Marcus Hancock-Gaillard - 4/2019
 
