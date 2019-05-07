@@ -1,6 +1,7 @@
 package Info::Account_Info;
 
 use CSFE;
+use Carp;
 use Exporter qw(import);
 
 our @EXPORT = qw(Account_Information);
@@ -61,11 +62,9 @@ Author: Marcus Hancock-Gaillard - 4/2019
 
 sub Account_Information {
 
-	die "Failed CSFE check_all()" unless csfe_check_all();
+	my $arg = shift or croak "Need to pass an argument to Account_Information!\n";
 
-	my $arg = shift // die "Need to pass an argument to Account_Information!\n";
-
-	my $res = csfe_post_request({
+	my $res = post_request({
 		canExpand => 1,
 		defaultTier => 'global',
 		canReload => 1,

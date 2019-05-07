@@ -11,26 +11,20 @@ use Term::ReadKey;
 use Carp;
 
 our @EXPORT = qw(
-        csfe_get_request
-        csfe_post_request
-	csfe_check_all
-	csfe_search
+        get_request
+        post_request
+	init
+	search
 );
 our @EXPORT_OK = qw(
-        csfe_set_cookie
-        check_config
-        set_config
-        get_all_config
-        csfe_check_cookie
+        _set_cookie
+        _check_cookie
 );
 
-my $home = $ENV{'HOME'};
-my $cookie_file = $home . "/local/cookies/csfecookie";
-my $c = $home . "/local/config.ini";
+my $username = "mhancock-gaillard";
+my $cookie_file = $ENV{'HOME'} . "/local/cookies/csfecookie";
 
-sub csfe_set_cookie {
-        # Get user/pass and set login URL. Created cookie and attached to useragent
-	my $username = shift or croak "Missing \$username param for set_csfe_cookie in $0";
+sub _set_cookie {
 	my $password = shift or croak "Missing \$password param for set_csfe_cookie in $0";
 	my $url = "https://enduranceoss.com/cs/oss_login.html";
 	my $cookie_jar = HTTP::Cookies->new(
@@ -54,62 +48,9 @@ sub csfe_set_cookie {
 	} else {
 		return 0;
 	}
-} # END
+}
 
-{
-	# Config Sub-Routines
-	my $cfg = new Config::Simple(syntax => 'ini');
-	$cfg->autosave(1);
-
-	sub check_config {
-                # check if config file exists > read the file and save values to hash > check if the username field exists
-		if (-f $c) {
-			$cfg->read($c) or croak $cfg->error();
-			my %c = $cfg->vars();
-			if (!defined $c{"user.username"}) {
-				return 0;
-			} else {
-				return 1;
-			}
-		} else {
-			return 0;
-		}
-	}
-
-	sub set_config {
-                # set block, receive hash ref (set), save current config > add new set to current config > set and save block
-		my $block = 'user';
-		my $set = shift or croak "Missing \\\%set param for set_config in $0";
-		my %config = $cfg->vars();
-		foreach my $k (keys %$set) { # Add new key, value pair(s) to current config
-			my $key = $block . '.' . $k;
-			$config{$k} = $set->{$k};
-		}
-		$cfg->set_block($block, \%config);
-		$cfg->save($c) or croak $cfg->error();
-
-                # get config after update > check if updated correctly or return 0
-		my $temp = $cfg->get_block($block);
-		foreach my $k (keys %config) {
-			if (!defined $temp->{$k}) {
-				return 0;
-				last;
-			}
-		}
-
-
-		return 1;
-	}
-
-	sub get_all_config {
-                # return hash of config
-		my %config = $cfg->vars();
-		return \%config;
-	}
-
-} # END
-
-sub csfe_check_cookie {
+sub _check_cookie {
         # check if cookie file exists > get modification time of cookie file > check if modified under 8 hours and size is above 1500KB
         return 0 unless -f $cookie_file; 
 	my $limit = 28800; # 8 hours in seconds
@@ -121,9 +62,9 @@ sub csfe_check_cookie {
 	} else {
 		return 0;
 	}
-} # END
+}
 
-sub csfe_get_request {
+sub get_request {
         # get req params and get url or set default url > create cookie and save to useragent
         my $o = shift or croak "No params sent with GET request";
 	my $url = shift // "https://admin.enduranceoss.com/WidgetWrapper.cmp";
@@ -138,12 +79,12 @@ sub csfe_get_request {
 	if ($res->code == 200 and $res->content) {
 		return $res->content;
 	} else {
-                carp Dumper($res);
-		return 0;
+                print Dumper($res);
+		croak "Err: No content or response code not 200!\n";
 	}
-} # END
+}
 
-sub csfe_post_request {
+sub post_request {
         # post req params and post url or set default url > create cookie and save to useragent
         my $o = shift or croak "No params sent with POST request.";
 	my $url = shift // "https://admin.enduranceoss.com/WidgetWrapper.cmp";
@@ -164,57 +105,40 @@ sub csfe_post_request {
         if ($res->code == 200 and $res->content) {
                 return $res->content;
         } else {
-		carp Dumper($res);
-                return 0;
+		print Dumper($res);
+                croak "Err: No content or response code not 200!\n";
         }
-} # END
+}
 
-sub user_n_pass {
-        # return username and/or password
-	my $x = shift; # ask for Username if arg is true but if arg is false statement only asks for password
-	my $username;
-	if ($x) {
-		print "Username: ";
-		$username = <STDIN>;
-		chomp $username;
-	}
+sub _pass {
 	print "Password: ";
 	ReadMode('noecho');
 	my $password = ReadLine(0);
 	chomp $password;
 	ReadMode('normal');
 	print "\n";
-	return ($username) ? { username => $username, password => $password } : $password;
-} # END
+	return $password;
+}
 
-sub csfe_check_all {
-        if (csfe_check_cookie()) {
+sub init {
+        if (_check_cookie()) {
 		return 1;
         } else {
-                print "Cookie is either expired or does not exist!\n";
-                if (check_config()) {
-                        my $c = get_all_config();
-                        my $password = user_n_pass(0);
-			if (csfe_set_cookie($c->{'user.username'}, $password)) {
-				return 1;
-			} else {
-				croak "Failed to login!";
-			}
+        	print "Cookie is either expired or does not exist!\n";
+                my $_pass = _pass();
+                if (_set_cookie($_pass)) {
+                        print "Success!\n";
+			print "Cookie is valid for 8 hours.\n";
+                        return 1;
                 } else {
-                        my $user_or_pass = user_n_pass(1);
-                        if (csfe_set_cookie($user_or_pass->{'username'}, $user_or_pass->{'password'})) {
-                                print "Successfully updated configuration and set CSFE cookie!\n" if set_config('user', { username => $user_or_pass->{'username'}});
-                                return 1;
-                        } else {
-                                croak "Failed to login!";
-                        }
-                }
+                        croak "Failed to login!";
+                }                
         }
-} # END
+}
 
-sub csfe_search {
+sub search {
 	# search for vDeck username from IP address, domain, or email address
-	my $arg = shift // die "Need an argument to search for a vDeck username!\n";
+	my $arg = shift or croak "Need an argument to search for a vDeck username!\n";
 	my $link = 'https://admin.enduranceoss.com/csfe/search.html';
 	my %o = (
 		advanced_search => $arg
@@ -224,7 +148,7 @@ sub csfe_search {
 	} else {
 		$o{"search_type"} = "domain";
 	}
-	my $res = csfe_post_request(\%o, $link);
+	my $res = post_request(\%o, $link);
 	if ($res =~ m`<a\s+href="/csfe/general\.html\?username=([\w\.0-9]+)"`gix) {
 		return $1;
 	} else {

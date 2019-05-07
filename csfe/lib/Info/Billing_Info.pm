@@ -3,9 +3,10 @@ use strict;
 use warnings;
 
 use CSFE;
+use Carp;
 use Exporter qw(import);
 
-our @EXPORT = qw(Billing_Information);
+our @EXPORT = qw(Billing_Info);
 
 =pod
 
@@ -59,12 +60,11 @@ Author: Marcus Hancock-Gaillard (marcus.hancock-gaillard@endurance.com) - 04/201
 
 =cut
 
-sub Billing_Information {
+sub Billing_Info {
 
-	die "Failed CSFE check_all()" unless csfe_check_all();
-	my $arg = shift // die "Need to pass an argument to Billing_Information!\n";
+	my $arg = shift or croak "Need to pass an argument to Billing_Information!\n";
 
-	my $res = csfe_post_request({
+	my $res = post_request({
 		defaultTier => 'tierIII',
 		canExpand => 1,
 		cacheTTL => '8 hours',

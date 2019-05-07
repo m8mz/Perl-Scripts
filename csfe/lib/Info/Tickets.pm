@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use CSFE;
+use Carp;
 use Exporter qw(import);
 
 our @EXPORT = qw(Tickets);
@@ -62,10 +63,9 @@ Author: Marcus Hancock-Gaillard (marcus.hancock-gaillard@endurance.com) - 04/201
 
 sub Tickets {
 
-	die "Failed CSFE check_all()" unless csfe_check_all();
-	my $arg = shift // die "Pass an argument to Tickets!\n";
+	my $arg = shift or croak "Pass an argument to Tickets!\n";
 
-	my $res = csfe_post_request({
+	my $res = post_request({
 		defaultTier => 'tierIII',
 		canExpand => 1,
 		cacheTTL => '12 hours',
