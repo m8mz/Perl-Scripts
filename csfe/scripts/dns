@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+
+my ($arg) = @ARGV;
+my $acct = vDeck->new($arg);
+my $x = $acct->dns_records();
+
+

@@ -1,0 +1,14 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+use Data::Dumper;
+
+my ($arg) = @ARGV;
+my $acct = vDeck->new($arg);
+my $billing = $acct->bill_snap();
+
+foreach my $trans (@$billing) {
+	printf("\t- %-10s %-50s %-10s %-8s %-7s %-8s %-10s %-12s\n", $trans->{'renewDate'}, $trans->{'product'}, $trans->{'billDate'}, $trans->{'amount'}, $trans->{'salesAmount'}, $trans->{'totalAmount'}, $trans->{'status'}, $trans->{'paymentMethod'});
+}

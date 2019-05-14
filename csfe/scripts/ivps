@@ -1,0 +1,19 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+
+my ($arg) = @ARGV;
+my $acct = vDeck->new($arg);
+my $info = $acct->tech_info();
+
+printf("\t%-20s =>\t%s\n", 'Fulfillment Status', $info->{'Fulfillment Status'});
+printf("\t%-20s =>\t%s\n", 'Created', $info->{'Date Created'});
+printf("\t%-20s =>\t%s\n", 'IP Address', $info->{'IPs'});
+printf("\t%-20s =>\t%s\n", 'Host Node', $info->{'Host Node'});
+printf("\t%-20s =>\t%s\n", 'Container ID', $info->{'Container ID'});
+printf("\t%-20s =>\t%s\n", 'Disk Space', $info->{'Disk Space'});
+printf("\t%-20s =>\t%s\n", 'RAM', $info->{'RAM'});
+printf("\t%-20s =>\t%s\n", 'Bandwidth', $info->{'Bandwidth'});
+printf("\t%-20s =>\t%s\n", '#Domains', $info->{'Plesk Domains'});

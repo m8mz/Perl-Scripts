@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+
+my ($arg) = @ARGV;
+my $acct = vDeck->new($arg);
+my $info = $acct->bill_info();
+
+printf("%-15s %-30s\n", 'Name:', $info->{'Card Holder Name'});
+printf("%-15s %s\n", 'Company Addr:', $info->{'Company Address'});
+printf("%-15s %s\n", 'Billing Addr:', $info->{'Billing Address'});
+printf("%-15s %s\n", 'Phone:', $info->{'Phone'});
+print("\t- $info->{'Card Number'}\n");
+print("\t- $info->{'Exp. Date'}\t$info->{'Card Type'}\n");
+print("\t- $info->{'Business Name'}\n");

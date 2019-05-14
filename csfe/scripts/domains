@@ -1,0 +1,13 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+
+my ($arg) = @ARGV;
+my $acct = vDeck->new($arg);
+my $domains = $acct->domains();
+
+foreach my $domain (@$domains) {
+	printf("\t- %-30s %-15s %s\n", $domain->{'domain'}, $domain->{'registrar'}, $domain->{'expires'});
+}

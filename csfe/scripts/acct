@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+
+my ($arg) = @ARGV;
+my $acct = vDeck->new($arg);
+my $info = $acct->account_info();
+
+printf("%-50s %s\n", $info->{'Name'}, $info->{'Account Type'});
+printf("%-50s %s\n", $info->{'Hosting Plan'}, $info->{'Account Status'});
+printf("%-50s %s\n", "SQ: $info->{'Question'}", $info->{'Answer'});
+print("\t- $info->{'Email(s)'}\n");
+print("\t- $info->{'Created On'}\n");
+print("\t- $info->{'Account Renewal Status'}\n");
+print("\t- $info->{'Deleted User'}\n");
+print("\t- $info->{'Account Origin'}\n");

@@ -1,0 +1,13 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+
+my ($arg) = @ARGV;
+my $acct = vDeck->new($arg);
+my $tickets = $acct->tickets();
+
+foreach my $ticket (@$tickets) {
+	printf("\t- %-10s %-40s %-8s\t%s\n", $ticket->{'date'}, $ticket->{'subject'}, $ticket->{'ID'}, $ticket->{'status'});
+}
