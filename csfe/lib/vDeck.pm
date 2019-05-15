@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use CSFE;
+use Carp;
 
 sub new {
 	my $class = shift;
@@ -36,7 +37,7 @@ sub account_info {
 		title => 'Account Information',
 		clear_widget_cache => 1,
 		__got_widget_js => 1
-	}) or die "Err: Issue with response!";
+	}) or croak "Err: Issue with response!\n";
 
 	my %acct;
 	while ($res =~ m`
@@ -77,7 +78,7 @@ sub bill_info {
 		title => 'Billing Information',
 		load_widget => 1,
 		__got_widget_js => 1
-	}) or die "Err: Issue with response!";
+	}) or croak "Err: Issue with response!\n";
 
 	my %info;
 	while ($res =~ m`
@@ -121,7 +122,7 @@ sub bill_snap {
 		title => 'Billing Snapshot',
 		load_widget => 1,
 		__got_widget_js => 1
-	}) or die "Err: Issue with reponse!";
+	}) or croak "Err: Issue with reponse!\n";
 
 	my @transactions;
 	while ($res =~ m`
@@ -173,7 +174,7 @@ sub domains {
 		load_widget => 1,
 		clear_widget_cache => 1,
 		__got_widget_js => 1,
-	}) or die "Err: Issue with response!";
+	}) or croak "Err: Issue with response!\n";
 
 	my @domains;
 	while ($res =~ m`
@@ -206,7 +207,7 @@ sub tech_info {
 		title => 'VPS Info',
 		load_widget => 1,
 		__got_widget_js => 1,
-	}) or die "Err: Issue with response!";
+	}) or croak "Err: Issue with response!\n";
 
 	my %info;
 	while ( $res =~ m`<strong>(?<Key>.*):</strong>\n?\s*</td>\n?\s*<td>\s*(<a\s*href=".*"\s*target="_blank">(?<Value>.*)</a>|(?<Value>[a-zA-Z0-9 -]+))\n?\s*</td>`gix ) {
@@ -235,7 +236,7 @@ sub tickets {
 		title => 'CSES/Polaris Activity',
 		load_widget => 1,
 		__got_widget_js => 1,
-	}) or die "Err: Issue with response!";
+	}) or croak "Err: Issue with response!\n";
 
 	my @tickets;
 	while ($res =~ m`
@@ -260,33 +261,161 @@ sub tickets {
 	return \@tickets;
 }
 
-sub vps_info {
+sub dns_records {
 	my $self = shift;
 
+	$self->{'domain'} = $self->{'user'};
+	$self->{'user'} = search($self->{'domain'});
+
+
 	my $res = post_request({
+		canExpand => 1,
+		defaultTier => 'tierIII',
+		canReload => 1,
+		cacheLevel => 'none',
+		tool => '/csfe/tools/domainconsole.cmp',
+		widgetName => 'tech_tools_popup',
+		Domain => $self->{'domain'},
+		username => $self->{'user'},
+		subsystemID => 1100,
+		PropertyID => 33,
+		docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/tech_tools_popup',
+		title => 'Tools',
+		load_widget => 1,
+		__got_widget_js => 1
+	}) or croak "Err: Issue with response!\n";
+
+	my %obj = (
+		dns => [],
+		history => []
+	);
+	while ($res =~ m`
+	.*name="CurrentMX"\s+value="(?<Mx_ID>\d+)"> |
+	.*name="domain_id"\s+value="(?<Domain_ID>\d+)" |
+	<td\s+colspan="2"><a\shref="/csfe/general\.html\?username=(?<Username>.*)">.*\n\s*<td>(?<Date>.*)</td> |
+	<tr>\n
+	\s*<td>(?<ID>\d+)</td>\n
+	.*\n
+	\s*<input.*value="(?<Type>.*)".*\n
+	.*\n
+	\s*<input.*value="(?<Name>.*)".*\n
+	\s*<td><input.*value="(?<Record>.*)".*\n
+	(.*name="oldprio.*value="(?<Priority>\d+)")?
+	`gix) {
+		if (exists $+{Mx_ID}) {
+			$self->{'mx'} = $+{Mx_ID};
+			$self->{'property_id'} = substr($self->{'mx'}, 0, 2);
+		} elsif (exists $+{Domain_ID}) {
+			$self->{'id'} = $+{Domain_ID};
+		}
+
+		if (exists $+{Username} and exists $+{Date}) {
+			push @{$obj{'history'}}, { user => $+{Username}, date => $+{Date} };
+		}
+
+		if (exists $+{ID} and exists $+{Type} and exists $+{Name} and exists $+{Record}) {
+			my $o = {
+				id => $+{ID},
+				type => $+{Type},
+				name => $+{Name},
+				record => $+{Record}
+			};
+			if (exists $+{Priority}) {
+				$o->{'priority'} = $+{Priority};
+			}
+
+			push @{$obj{'dns'}}, $o;
+		}
+
+	}
+
+	return \%obj;
+}
+
+sub dns_add {
+	my $self = shift;
+
+	if (!defined $self->{'domain'}) {
+		$self->{'domain'} = $self->{'user'};
+		$self->{'user'} = search($self->{'domain'});
+		
+		my $res = post_request({
+			canExpand => 1,
+			defaultTier => 'tierIII',
+			canReload => 1,
+			cacheLevel => 'none',
+			tool => '/csfe/tools/domainconsole.cmp',
+			widgetName => 'tech_tools_popup',
+			Domain => $self->{'domain'},
+			username => $self->{'user'},
+			subsystemID => 1100,
+			PropertyID => 33,
+			docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/tech_tools_popup',
+			title => 'Tools',
+			load_widget => 1,
+			__got_widget_js => 1
+		}) or croak "Err: Issue with response!\n";
+
+		while ($res =~ m`
+		.*name="CurrentMX"\s+value="(?<Mx_ID>\d+)"> |
+		.*name="domain_id"\s+value="(?<Domain_ID>\d+)"
+		`gix) {
+			if (exists $+{Mx_ID}) {
+				$self->{'mx'} = $+{Mx_ID};
+				$self->{'property_id'} = substr($self->{'mx'}, 0, 2);
+			} elsif (exists $+{Domain_ID}) {
+				$self->{'id'} = $+{Domain_ID};
+			}
+		}
+	}
+
+	croak "Adding a record requires a minimum of 4 arguments!\n" unless scalar @_ >= 3;
+	my ($type, $name, $record, $priority) = @_;
+	$type = uc $type;
+	croak "Unable to add '$type' DNS record!\n" unless $type =~ /^A|CNAME|MX|TXT|NS|SOA$/;
+
+	my %params = (
+		UserName => $self->{'user'},
+		Domain => $self->{'domain'},
+		NewOwner => '',
+		add_db_record => 'Add Record',
+		CurrentMX => $self->{'mx'},
+		newmx => 'new',
+		MX => $self->{'mx'},
+		domaintemplate => 2,
+		oldtype => 1,
+		Native => 1,
+		master => '',
+		domain_id => $self->{'id'},
+		newtype => $type,
+		newname => $name,
+		newcontent => $record,
+		newpriority => $priority,
+		notification => 1,
 		defaultTier => 'tierIII',
 		canExpand => 1,
 		canReload => 1,
 		cacheLevel => 'none',
-		OSSFlag => 'CSFE_BASIC',
-		widgetName => 'vps_info_new',
+		tool => '/csfe/tools/domainconsole.cmp',
+		widgetName => 'tech_tools_popup',
 		username => $self->{'user'},
-		subsystemID => 3000,
-		docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/vps_info_new',
-		title => 'VPS Info',
+		subsystemID => 1100,
+		PropertyID => $self->{'property_id'},
+		docPath => 'https://wiki.bizland.com/wiki/index.php/Widgets/tech_tools_popup',
+		title => 'Tools',
 		load_widget => 1,
-		__got_widget_js => 1,
-	}) or die "Err: Issue with response!";
+		clear_widget_cache => 1,
+		__got_widget_js => 1
+	);
 
-	my %info;
-	while ($res =~ m`
-	<td.*>\n?\s*<strong>(?<Key>.*):</strong>\n?\s*</td>\n?\s*<td>\n?\s*(<a.*>(?<Value>.*)</a>|(?<Value>.*))\n?\s*</td>
-	`gix) {
-		next if $+{Key} =~ /Container Status|\w+ Login/;
-		$info{"$+{Key}"} = $+{Value};
-	}
+	my $res = post_request(\%params);
+        if ($res) {
+                return 1;
+        } else {
+                croak "Err: Unable to create $type record '$name => $record'\n";
+        }
 
-	return \%info;
 }
+	
 
 1;

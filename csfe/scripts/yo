@@ -1,0 +1,126 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+use Getopt::Long;
+
+GetOptions(
+	'i=s' => \&acct,
+	'd=s' => \&dns,
+	'l=s' => \&domains,
+	'c=s' => \&ibill,
+	'v=s' => \&ivps,
+	'b=s' => \&sbill,
+	't=s' => \&tickets
+) or print <<EOF;
+Help -
+	i - Account Information
+	d - DNS Records
+	l - Domains
+	c - Billing Information
+	v - VPS Information
+	b - Billing Snapshot
+	t - Tickets
+
+EOF
+
+sub acct {
+	my (undef, $value) = @_;
+	my $acct = vDeck->new($value);
+	my $info = $acct->account_info();
+
+	printf("%-50s %s\n", $info->{'Name'}, $info->{'Account Type'});
+	printf("%-50s %s\n", $info->{'Hosting Plan'}, $info->{'Account Status'});
+	printf("%-50s %s\n", "SQ: $info->{'Question'}", $info->{'Answer'});
+	print("\t- $info->{'Email(s)'}\n");
+	print("\t- $info->{'Created On'}\n");
+	print("\t- $info->{'Account Renewal Status'}\n");
+	print("\t- $info->{'Deleted User'}\n");
+	print("\t- $info->{'Account Origin'}\n");
+}
+
+sub dns {
+	my (undef, $value) = @_;
+	my $acct = vDeck->new($value);
+	my $x = $acct->dns_records();
+
+	print "History:\n";
+
+	foreach my $i (@{$x->{'history'}}) {
+		print "\t- $i->{'date'} => $i->{'user'}\n";
+	}
+
+	print "DNS Records:\n";
+
+	foreach my $i (@{$x->{'dns'}}) {
+		printf("\t%-10s %-30s %s\n", $i->{'type'}, $i->{'name'}, $i->{'record'});
+	}
+
+}
+
+sub domains {
+	my (undef, $value) = @_;
+	my $acct = vDeck->new($value);
+	my $domains = $acct->domains();
+
+	foreach my $domain (@$domains) {
+		printf("\t- %-30s %-15s %s\n", $domain->{'domain'}, $domain->{'registrar'}, $domain->{'expires'});
+	}
+
+}
+
+sub ibill {
+	my (undef, $value) = @_;
+	my $acct = vDeck->new($value);
+	my $info = $acct->bill_info();
+
+	printf("%-15s %-30s\n", 'Name:', $info->{'Card Holder Name'});
+	printf("%-15s %s\n", 'Company Addr:', $info->{'Company Address'});
+	printf("%-15s %s\n", 'Billing Addr:', $info->{'Billing Address'});
+	printf("%-15s %s\n", 'Phone:', $info->{'Phone'});
+	print("\t- $info->{'Card Number'}\n");
+	print("\t- $info->{'Exp. Date'}\t$info->{'Card Type'}\n");
+	print("\t- $info->{'Business Name'}\n");
+
+}
+
+sub ivps {
+	my (undef, $value) = @_;
+	my $acct = vDeck->new($value);
+	my $info = $acct->tech_info();
+
+	print " Container -\n";
+	printf("\t%-20s =>\t%s\n", 'Fulfillment Status', $info->{'Fulfillment Status'});
+	printf("\t%-20s =>\t%s\n", 'Created', $info->{'Date Created'});
+	printf("\t%-20s =>\t%s\n", 'IP Address', $info->{'IPs'});
+	printf("\t%-20s =>\t%s\n", 'Host Node', $info->{'Host Node'});
+	printf("\t%-20s =>\t%s\n", 'Container ID', $info->{'Container ID'});
+	printf("\t%-20s =>\t%s\n", 'Disk Space', $info->{'Disk Space'});
+	printf("\t%-20s =>\t%s\n", 'RAM', $info->{'RAM'});
+	printf("\t%-20s =>\t%s\n", 'Bandwidth', $info->{'Bandwidth'});
+	printf("\t%-20s =>\t%s\n", '#Domains', $info->{'Plesk Domains'});
+
+}
+
+sub sbill {
+	my (undef, $value) = @_;
+	my $acct = vDeck->new($value);
+	my $billing = $acct->bill_snap();
+
+	foreach my $trans (@$billing) {
+		printf("\t- %-10s %-50s %-10s %-8s %-7s %-8s %-10s %-12s\n", $trans->{'renewDate'}, $trans->{'product'}, $trans->{'billDate'}, $trans->{'amount'}, $trans->{'salesAmount'}, $trans->{'totalAmount'}, $trans->{'status'}, $trans->{'paymentMethod'});
+	}
+
+}
+
+sub tickets {
+	my (undef, $value) = @_;
+	my $acct = vDeck->new($value);
+	my $tickets = $acct->tickets();
+
+	foreach my $ticket (@$tickets) {
+		printf("\t- %-10s %-40s %-8s\t%s\n", $ticket->{'date'}, $ticket->{'subject'}, $ticket->{'ID'}, $ticket->{'status'});
+	}
+
+}
