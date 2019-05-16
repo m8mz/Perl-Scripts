@@ -7,9 +7,7 @@ use Carp;
 
 sub new {
 	my $class = shift;
-	my $self = {
-		user => shift,
-	};
+	my $self = shift;
 
 	init();
 
@@ -334,8 +332,9 @@ sub dns_records {
 
 sub dns_add {
 	my $self = shift;
+	my $domain = shift;
 
-	if (!defined $self->{'domain'}) {
+	if (!defined $self->{'domain'} || !$self->{'domain'} eq $domain) {
 		$self->{'domain'} = $self->{'user'};
 		$self->{'user'} = search($self->{'domain'});
 		
