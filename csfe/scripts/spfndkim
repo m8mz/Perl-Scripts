@@ -1,0 +1,89 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use vDeck;
+use CSFE;
+use Getopt::Long;
+use Net::DNS;
+
+my $account = '';
+my $domain = '';
+GetOptions(
+	'account=s' => \$account,
+	'domain=s' => \$domain
+) or print <<EOF;
+ Help -
+
+ 	a - All domains on the account
+	d - Specify domain
+EOF
+
+my $acct;
+my $domains = [];
+if ($account) {
+	$acct = vDeck->new($account);
+	foreach (@{$acct->domains()}) {
+		push @$domains, $_->{'domain'};
+	}
+} elsif ($domain) {
+	my $user = search($domain);
+	$acct = vDeck->new($user);
+	push @$domains, $domain;
+}
+my $info = $acct->tech_info();
+
+my @notonserver;
+if (@$domains) {
+	my $resolver = new Net::DNS::Resolver(
+		nameservers => ['1.1.1.1', '1.0.0.1']
+	);
+
+	foreach my $domain (@$domains) {
+		my @mx = mx($resolver, $domain);
+		if (@mx) {
+			foreach my $rr (@mx) {
+				my $reply = $resolver->query($rr->exchange);
+				if ($reply) {
+					foreach my $i ($reply->answer) {
+						if ($info->{'IPs'} eq $i->address) {
+							add_records($domain);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+sub add_records {
+	my $domain = shift // die "Called without passing a domain!";
+	print " $domain:\n";
+	my $resolver = new Net::DNS::Resolver(
+		nameservers => [$info->{'IPs'}]
+	);
+
+	my $spf = $resolver->search($domain, "TXT");
+	my $dkim_record_name = "default._domainkey." . $domain;
+	my $dkim = $resolver->search($dkim_record_name, "TXT");
+	if ($spf and $dkim) {
+		foreach my $x ($spf->answer) {
+			if ($x->can('txtdata') and $acct->dns_add($domain, 'txt', $domain, $x->txtdata)) {
+				print "\t - Added SPF record\n";
+			} else {
+				print "\t - Failed SPF\n";
+			}
+		}
+		foreach my $x ($dkim->answer) {
+			if ($x->can('txtdata') and $acct->dns_add($domain, 'txt', 'default._domainkey', $x->txtdata)) {
+				print "\t - Added DKIM record\n";
+			} else {
+				print "\t - Failed DKIM\n";
+			}
+		}
+
+	} else {
+		print "The domain '$domain' is not on the server.\n";
+	}
+}
+

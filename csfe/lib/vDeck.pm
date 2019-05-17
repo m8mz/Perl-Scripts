@@ -7,9 +7,15 @@ use Carp;
 
 sub new {
 	my $class = shift;
-	my $self = shift;
+	my $self = {
+		user => shift
+	};
 
 	init();
+
+	if ($self->{'user'} =~ /(\d{1,3}\.){3}\d{1,3}/) {
+		$self->{'user'} = search($self->{'user'});
+	}
 
 	bless $self, $class;
 	return $self;
@@ -335,7 +341,7 @@ sub dns_add {
 	my $domain = shift;
 
 	if (!defined $self->{'domain'} || !$self->{'domain'} eq $domain) {
-		$self->{'domain'} = $self->{'user'};
+		$self->{'domain'} = $domain;
 		$self->{'user'} = search($self->{'domain'});
 		
 		my $res = post_request({
