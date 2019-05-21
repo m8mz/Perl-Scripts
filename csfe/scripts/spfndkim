@@ -33,13 +33,33 @@ if ($account) {
 }
 my $info = $acct->tech_info();
 
-my @notonserver;
+my $dospf = 1;
+my $dodkim = 1;
 if (@$domains) {
 	my $resolver = new Net::DNS::Resolver(
 		nameservers => ['1.1.1.1', '1.0.0.1']
 	);
 
 	foreach my $domain (@$domains) {
+		
+		my $spf_check = $resolver->search($domain, 'TXT');
+		my $dkim_record_name = "default._domainkey." . $domain;
+		my $dkim_check = $resolver->search($dkim_record_name, "TXT");
+
+		if ($spf_check and $dkim_check) {
+			foreach my $x ($spf_check->answer) {
+				if ($x->can('txtdata') and $x->txtdata =~ /$info->{'IPs'}/) {
+					$dospf = 0;
+				}
+			}
+			foreach my $x ($dkim_check->answer) {
+				if ($x->can('txtdata') and $x->txtdata) {
+					$dodkim = 0;
+				}
+			}
+
+		}
+
 		my @mx = mx($resolver, $domain);
 		if (@mx) {
 			foreach my $rr (@mx) {
@@ -47,7 +67,9 @@ if (@$domains) {
 				if ($reply) {
 					foreach my $i ($reply->answer) {
 						if ($info->{'IPs'} eq $i->address) {
-							add_records($domain);
+							print "$domain\n";
+							add_spf($domain) if $dospf;
+							add_dkim($domain) if $dodkim;
 						}
 					}
 				}
@@ -56,17 +78,32 @@ if (@$domains) {
 	}
 }
 
-sub add_records {
-	my $domain = shift // die "Called without passing a domain!";
-	print " $domain:\n";
-	my $resolver = new Net::DNS::Resolver(
+
+sub add_dkim {
+	my $domain = shift // die "DKIM: Called without passing a domain.";
+	my $dkim_record_name = "default._domainkey." . $domain;
+	my $resolver2 = new Net::DNS::Resolver(
 		nameservers => [$info->{'IPs'}]
 	);
+	my $dkim = $resolver2->search($dkim_record_name, "TXT");
+	if ($dkim) {
+		foreach my $x ($dkim->answer) {
+			if ($x->can('txtdata') and $acct->dns_add($domain, 'txt', $domain, $x->txtdata)) {
+				print "\t - Added SPF record\n";
+			} else {
+				print "\t - Failed SPF\n";
+			}
+		}
+	}
+}
 
-	my $spf = $resolver->search($domain, "TXT");
-	my $dkim_record_name = "default._domainkey." . $domain;
-	my $dkim = $resolver->search($dkim_record_name, "TXT");
-	if ($spf and $dkim) {
+sub add_spf {
+	my $domain = shift // die "SPF: Called without passing a domain.";
+	my $resolver2 = new Net::DNS::Resolver(
+                nameservers => [$info->{'IPs'}]
+        );
+	my $spf = $resolver2->search($domain, "TXT");
+	if ($spf) {
 		foreach my $x ($spf->answer) {
 			if ($x->can('txtdata') and $acct->dns_add($domain, 'txt', $domain, $x->txtdata)) {
 				print "\t - Added SPF record\n";
@@ -74,16 +111,6 @@ sub add_records {
 				print "\t - Failed SPF\n";
 			}
 		}
-		foreach my $x ($dkim->answer) {
-			if ($x->can('txtdata') and $acct->dns_add($domain, 'txt', 'default._domainkey', $x->txtdata)) {
-				print "\t - Added DKIM record\n";
-			} else {
-				print "\t - Failed DKIM\n";
-			}
-		}
-
-	} else {
-		print "The domain '$domain' is not on the server.\n";
 	}
 }
 
