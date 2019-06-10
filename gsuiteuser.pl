@@ -20,7 +20,7 @@ my $dbmail_port = "3301";
 my $db_billing = "billing";
 my $db_mailsettings = "mailsettings";
 my $db_user = "support";
-my $db_pass = "t1wamfn";
+my $db_pass = "######";
 my $db_host = "walsupporthub01";
 
 # initiate db connections
